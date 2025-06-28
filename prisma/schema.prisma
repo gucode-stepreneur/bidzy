@@ -1,0 +1,41 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model user {
+  id    Int     @id @default(autoincrement())
+  name String @unique
+}
+
+model artwork {
+    id    Int     @id @default(autoincrement())
+    name String 
+    path String
+    art_name String
+    start_price Int
+    bid_rate Int
+    fee Int
+    description String
+    end_at DateTime
+    start_at DateTime @default(now())
+}
+
+model bidHistory{
+    id Int @id @default(autoincrement())
+    bid_amount Int
+    bidder_name String
+    bid_at DateTime @default(now())
+    id_artwork Int
+}
