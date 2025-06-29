@@ -126,22 +126,22 @@ export default function auc_detail(){
 
             <Auc_board idArt={idArtWork} whichRole="bidder"/>
             {isImageFull && (
-  <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
-    <button
-      onClick={() => setIsImageFull(false)}
-      className="absolute top-5 right-5 !text-white text-2xl font-bold"
-    >
-      ✕
-    </button>
-    <Image
-      src={`/uploads/${path}`}
-      width={2000}
-      height={2000}
-      alt="ภาพเต็มจอ"
-      className="max-w-full max-h-full object-contain"
-    />
-  </div>
-)}
+                <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
+                  <button
+                    onClick={() => setIsImageFull(false)}
+                    className="absolute top-5 right-5 !text-white text-2xl font-bold"
+                  >
+                    ✕
+                  </button>
+                  <Image
+                    src={`/uploads/${path}`}
+                    width={2000}
+                    height={2000}
+                    alt="ภาพเต็มจอ"
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              )}
           </div>
 
 

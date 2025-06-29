@@ -7,12 +7,12 @@ import Popup from "@/Popup/page";
 import Countdown from "@/Countdown/page";
 import Image from "next/image";
 
-export  function Auc_board({idArt , whichRole}) {
+export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
   const [idArtWork , setIdArtWork] = useState(null)
   const [start_price , setStartPrice] = useState(0);
   const [bidRate , setBidRate] = useState(0)
-  const [highest , setHighest ] = useState(null);
+  const [highest , setHighest ] = useState(0);
    const [deadlineExpired, setDeadlineExpired] = useState(false)
   const [deadline , setEnd] = useState("")  
   const [isTimeOut , setTimeOut] = useState(false)
@@ -132,10 +132,15 @@ export  function Auc_board({idArt , whichRole}) {
 
   // Room management and bid listening
   useEffect(() => {
-    if (!idArtWork || !socket.connected) return;
+    if (!idArtWork || !socket.connected) {
+      console.log("❌ ไม่สามารถเข้าห้องได้:", { idArtWork, socketConnected: socket.connected });
+      return;
+    }
 
     const room = `auction_${idArtWork}`;
     console.log("🎯 เตรียมเข้าห้อง:", room);
+    console.log("👤 User Role:", whichRole);
+    console.log("🔗 Socket Connected:", socket.connected);
 
     const handleNewBid = (data) => {
       console.log("📨 ได้ bid ใหม่:", data);
@@ -146,19 +151,42 @@ export  function Auc_board({idArt , whichRole}) {
       }
     };
 
+    const handleAuctionEnded = (data) => {
+      console.log("🔔 รับ event auction_ended จาก server แล้ว!", data);
+      console.log("🎯 ข้อมูลที่ได้รับ:", data);
+      setDeadlineExpired(true);
+      setEnd(new Date().toISOString());
+      
+      // แสดงข้อความตามข้อมูลที่ได้รับจาก server
+      const message = data?.message || "การประมูลถูกหยุดโดยศิลปิน ระบบจะรีเฟรชหน้าให้อัตโนมัติ";
+      alert(message);
+      
+      // รีเฟรชหน้าหลังจาก delay เล็กน้อย
+      setTimeout(() => {
+        console.log("🔄 รีเฟรชหน้า...");
+        window.location.reload();
+      }, 1000);
+    };
+
     // Join room
     socket.emit("join_room", room);
     console.log("✅ เข้าห้อง:", room);
 
     // Listen for new bids
     socket.on("new_bid", handleNewBid);
+    console.log("👂 เริ่มฟัง new_bid event");
+    
+    // Listen for auction ended
+    socket.on("auction_ended", handleAuctionEnded);
+    console.log("👂 เริ่มฟัง auction_ended event");
 
     return () => {
       socket.emit("leave_room", room);
       socket.off("new_bid", handleNewBid);
+      socket.off("auction_ended", handleAuctionEnded);
       console.log("⬅️ ออกจากห้อง:", room);
     };
-  }, [idArtWork, socket.connected]);
+  }, [idArtWork, socket.connected, whichRole]);
 
   useEffect(() => {
     console.log("🔄 idArtWork เปลี่ยน:", idArtWork);
@@ -166,17 +194,21 @@ export  function Auc_board({idArt , whichRole}) {
   }, [idArtWork, history]);
 
 
-  function winner_modal(status) {
-
-  if(status == "artist"){
+ function winner_modal(status) {
+  if (status === "artist") {
     setModalType("artist");
     setShowModal(true);
-    const datas = history[0]
-    console.log(datas)
-    const bidder_name = datas.bidder_name
-    setWinnerName(bidder_name)
-  }
-  else if (status === "winner") {
+
+    if (history.length > 0 && history[0]?.bidder_name) {
+      const bidder_name = history[0].bidder_name;
+      console.log("🎯 ผู้ชนะคือ:", bidder_name);
+      setWinnerName(bidder_name);
+    } else {
+      console.warn("⚠️ ไม่พบข้อมูลผู้ชนะ");
+      setWinnerName("ไม่พบผู้ชนะ");
+    }
+
+  } else if (status === "winner") {
     setModalType("winner");
     setShowModal(true);
   } else if (status === "loser") {
@@ -186,27 +218,37 @@ export  function Auc_board({idArt , whichRole}) {
 }
 
 
+
   function end_auction() {
-    const role = whichRole ;
-    if(role == "bidder"){
-      console.log("this is Bidder")
-      const last_bidder = history[0].bidder_name
-      console.log(last_bidder)
-      if(last_bidder == userName){
-        winner_modal("winner")
-      }else if (last_bidder != userName){
-        winner_modal("loser")
+  const role = whichRole;
+
+  if (role == "bidder") {
+    console.log("this is Bidder");
+
+    if (history.length > 0 && history[0]?.bidder_name) {
+      const last_bidder = history[0].bidder_name;
+      console.log(last_bidder);
+
+      if (last_bidder == userName) {
+        winner_modal("winner");
+      } else {
+        winner_modal("loser");
       }
+    } else {
+      console.warn("ยังไม่มี bid ในระบบ");
     }
-    else if(role == "artist"){
-      winner_modal("artist")
-    }
+
+  } else if (role == "artist") {
+    winner_modal("artist");
   }
-  useEffect(() => {
-    if (deadlineExpired == true) {
-      end_auction();
-    }
-  }, [deadlineExpired]);
+}
+
+ useEffect(() => {
+  if (deadlineExpired == true) {
+    end_auction();
+    onDeadlineExpired?.(); // ⬅️ แจ้งแม่ว่าหมดเวลาแล้ว
+  }
+}, [deadlineExpired]);
 
 
   function submitBid(e) {
@@ -259,6 +301,40 @@ export  function Auc_board({idArt , whichRole}) {
     });
   }
 
+async function forceEndAuction() {
+  const confirmEnd = window.confirm("คุณแน่ใจหรือไม่ว่าต้องการหยุดการประมูลทันที?");
+  if (!confirmEnd) return;
+
+  try {
+    console.log("🔄 เริ่มหยุดการประมูลสำหรับ artwork ID:", idArtWork);
+    
+    const response = await fetch("/api/force-end", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id_artwork: parseInt(idArtWork) }),
+    });
+
+    if (response.ok) {
+      console.log("✅ การประมูลถูกหยุดเรียบร้อยแล้ว");
+      setDeadlineExpired(true);
+      setEnd(new Date().toISOString());
+
+      // แจ้ง server ว่าหยุดประมูลแล้ว ให้ส่ง event ไปยังผู้ที่อยู่ในห้อง
+      if (socket.connected) {
+        const eventData = { id_artwork: parseInt(idArtWork) };
+        console.log("📤 ส่ง force_end_auction event:", eventData);
+        socket.emit("force_end_auction", eventData);
+      } else {
+        console.error("❌ Socket ไม่เชื่อมต่อ ไม่สามารถส่ง event ได้");
+      }
+    } else {
+      console.error("❌ หยุดการประมูลไม่สำเร็จ");
+    }
+  } catch (error) {
+    console.error("❌ เกิดข้อผิดพลาด:", error);
+  }
+}
+
   return (
     <div className="w-full h-max flex flex-col  mx-auto bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
     <div className="text-center py-5">
@@ -300,12 +376,12 @@ export  function Auc_board({idArt , whichRole}) {
 
     </div>
      {deadlineExpired ? (
-        <div className="text-center text-red-500 font-bold p-10 flex flex-col gap-4">
+        <div className="text-center  pt-5 flex flex-col gap-4">
           <div>
-            {modalType == "winner" ? "คุณชนะ !" : modalType == "loser" ? "คุณแพ้ในศึกครั้งนี้ !" : modalType == "artist" ? "งานประมูลจบแล้ว !" : "มีบั๊คเกิดขึ้น"}
+            {modalType == "winner" ? "คุณชนะ !" : modalType == "loser" ? "คุณแพ้ในศึกครั้งนี้ !" : modalType == "artist" ? "งานประมูลจบแล้ว !" : "ไม่มีผู้ชนะ"}
           </div>
-          <button className="w-[100%] bg-[#4047A1] py-4 rounded-2xl !text-white" onClick={end_auction}>
-            {modalType == "winner" ? "กดเพื่อดูช่องทางติดต่อศิลปิน" : modalType == "loser" ? "กดเพื่อดูคำปลอบใจ" : modalType == "artist" ? "กดเพื่อดูช่องทางติดต่อผู้ชนะ" : "มีบั๊คเกิดขึ้น"}
+          <button className="self-center !text-white w-[90%] rounded-sm py-3 my-3 bg-[#4047A1]" onClick={end_auction}>
+            {modalType == "winner" ? "กดเพื่อดูช่องทางติดต่อศิลปิน" : modalType == "loser" ? "กดเพื่อดูคำปลอบใจ" : modalType == "artist" ? "กดเพื่อดูช่องทางติดต่อผู้ชนะ" : "ไม่มีผู้ชนะ"}
           </button>
         </div>
         
@@ -339,6 +415,15 @@ export  function Auc_board({idArt , whichRole}) {
         ))
       )}
 
+      {/* สำหรับปิดการประมูล */}
+    {whichRole == "artist" && deadlineExpired == false &&  (
+      <button
+        onClick={forceEndAuction}
+        className="self-center bg-red-700 !text-white w-[90%] rounded-sm py-3 my-3 mb-5"
+      >
+        หยุดการประมูล
+      </button>
+    )}
   
  {/* สำหรับเช็ค socket
   <div className="bg-gray-100 border-t border-gray-300 p-4 text-center text-sm text-gray-600">
@@ -351,26 +436,35 @@ export  function Auc_board({idArt , whichRole}) {
 */}
 {showModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-xl shadow-xl w-80 text-center">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">
+    <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] text-center relative">
+      <button
+        onClick={() => setShowModal(false)}
+        className=" top-0 right-0 !text-black text-3xl px-4 py-2 rounded-lg absolute"
+      >
+        x
+      </button>
+      <div className="w-[200px] h-full mx-auto ">
+        <Image src="/icon/bidzy_end_mascot.png" width={1000} height={1000} alt="mascot" className="object-contain" /> 
+      </div>
+      <h2 className="text-xl font-bold text-gray-800 mb-4 mt-4">
         {modalType === "winner" ? "🎉 คุณชนะการประมูล!" : modalType === "loser" ? "😢 คุณแพ้การประมูล" : "งานประมูลของคุณจบลงแล้ว"}
       </h2>
       <p className="text-gray-600 mb-6">
-        {modalType === "winner"
-          ? `ขอแสดงความยินดี! คุณเป็นผู้ชนะ นี่คือเฟสผู้ขาย -> ${artistName} <-` 
+        {modalType === "winner" 
+          ? `ขอแสดงความยินดี! คุณเป็นผู้ชนะ` 
           : modalType == "loser"
           ? "ไม่เป็นไรนะ คุณแพ้ครับ"
           : modalType == "artist"
-          ? `ขอแสดงความยินดี! งานประมูลคุณจบในราคา ${highest} นี่คือเฟสผู้ขาย -> ${winnerName} <-` 
+          ? `ขอแสดงความยินดี! งานประมูลคุณจบในราคา ${highest} บาท` 
           : "บั๊คเกิดขึ้น"
         }
       </p>
-      <button
-        onClick={() => setShowModal(false)}
-        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-      >
-        ปิด
-      </button>
+     {(modalType === "winner" || modalType === "artist") && (
+        <button className="w-max h-max px-4 py-2 bg-[#4047A1] !text-white rounded-md">
+          {modalType === "winner" ? "ติดต่อศิลปิน" : "ติดต่อผู้ชนะ"}
+        </button>
+      )}
+
     </div>
   </div>
 )}

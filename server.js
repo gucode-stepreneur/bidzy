@@ -1,10 +1,10 @@
-const { createServer } = require("http");
-const next = require("next");
-const { Server } = require("socket.io");
+import { createServer } from "node:http";
+import next from "next";
+import { Server } from "socket.io";
 
 const dev = process.env.NODE_ENV !== "production";
-const hostname = "0.0.0.0";
-const port = process.env.PORT || 3000;
+const hostname = "localhost";
+const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
@@ -25,11 +25,44 @@ app.prepare().then(() => {
     socket.on("join_room", (room) => {
       socket.join(room);
       console.log("➡️ เข้าห้อง:", room, "โดย socket:", socket.id);
+      
+      // ตรวจสอบจำนวนผู้ใช้ในห้องหลังจากเข้า
+      const roomSize = io.sockets.adapter.rooms.get(room)?.size || 0;
+      console.log(`📊 จำนวนผู้ใช้ในห้อง ${room} หลังเข้า:`, roomSize);
+      
+      // ตรวจสอบว่าห้องมีอยู่จริงหรือไม่
+      const roomExists = io.sockets.adapter.rooms.has(room);
+      console.log(`🏠 ห้อง ${room} มีอยู่จริง:`, roomExists);
     });
 
     socket.on("leave_room", (room) => {
       socket.leave(room);
       console.log("⬅️ ออกจากห้อง:", room, "โดย socket:", socket.id);
+    });
+    
+    socket.on("force_end_auction", (data) => {
+      const room = `auction_${data.id_artwork}`;
+      console.log(`⛔️ การประมูลถูกหยุดในห้อง ${room}`);
+      console.log(`📊 ข้อมูลที่ได้รับ:`, data);
+      console.log(`📊 จำนวนผู้ใช้ในห้อง ${room}:`, io.sockets.adapter.rooms.get(room)?.size || 0);
+      
+      // ตรวจสอบว่าห้องมีอยู่จริงหรือไม่
+      const roomExists = io.sockets.adapter.rooms.has(room);
+      console.log(`🏠 ห้อง ${room} มีอยู่จริง:`, roomExists);
+      
+      if (roomExists) {
+        const socketsInRoom = io.sockets.adapter.rooms.get(room);
+        console.log(`👥 Sockets ในห้อง ${room}:`, Array.from(socketsInRoom || []));
+      }
+      
+      // ส่ง event ไปยังทุกคนในห้อง
+      io.to(room).emit("auction_ended", { 
+        id_artwork: data.id_artwork,
+        ended_at: new Date().toISOString(),
+        message: "การประมูลถูกหยุดโดยศิลปิน"
+      });
+      
+      console.log(`✅ ส่ง auction_ended event ไปยังห้อง ${room} เรียบร้อย`);
     });
 
     socket.on("new_bid", (data) => {

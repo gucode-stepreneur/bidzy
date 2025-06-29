@@ -6,32 +6,41 @@ export default function Countdown({ deadline, onExpire }) {
   const [alreadyExpired, setAlreadyExpired] = useState(false);
 
   useEffect(() => {
-    const targetTime = new Date(deadline).getTime();
+  const targetTime = new Date(deadline).getTime();
+  const now = Date.now();
 
-    const timer = setInterval(() => {
-      const now = Date.now();
-      const distance = targetTime - now;
+  if (targetTime <= now && !alreadyExpired) {
+    setTimeLeft({ expired: true });
+    setAlreadyExpired(true);
+    onExpire?.(true);
+    return;
+  }
 
-      if (distance <= 0 && !alreadyExpired) {
-        clearInterval(timer);
-        setTimeLeft({ expired: true });
-        setAlreadyExpired(true);
-        onExpire?.(true); // ⬅️ แจ้งแม่ว่า "หมดเวลา"
-        return;
-      }
+  const timer = setInterval(() => {
+    const now = Date.now();
+    const distance = targetTime - now;
 
-      if (!alreadyExpired) {
-        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    if (distance <= 0 && !alreadyExpired) {
+      clearInterval(timer);
+      setTimeLeft({ expired: true });
+      setAlreadyExpired(true);
+      onExpire?.(true);
+      return;
+    }
 
-        setTimeLeft({ days, hours, minutes, seconds });
-      }
-    }, 1000);
+    if (!alreadyExpired) {
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-    return () => clearInterval(timer);
-  }, [deadline]);
+      setTimeLeft({ days, hours, minutes, seconds });
+    }
+  }, 1000);
+
+  return () => clearInterval(timer);
+}, [deadline]);
+
 
   if (timeLeft.expired) return <p className="!text-red-600 text-xl font-bold p-3">หมดเวลาแล้ว</p>;
 

@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import Image from "next/image";
-export const Popup = ({ stylish }) => {
+export const Popup = ({ stylish , highest }) => {
   const [isOpen, setIsOpen] = useState(false);
   const nameRef = useRef();
 
@@ -53,10 +53,29 @@ export const Popup = ({ stylish }) => {
     </label>
   </div>
 ) : stylish == 2 ? (
-  <div
-    className="bg-green-700 w-[200px] h-[100px] pointer-events-auto cursor-pointer"
-    onClick={openModal}
-  ></div>
+    <div
+      className="flex flex-col  items-start justify-center w-[100%] self-baseline mt-auto"
+    >
+      <div className="text-center text-xl text-green-600 ml-5">
+        <span className="text-lg ">บิดสูงสุด :</span> <span className="text-black font-bold">{highest}</span><span> บาท</span>
+      </div>
+      <div className="flex flex-row w-[100%] p-5 pt-2">
+        <input
+        type="number"
+        name="bid_amount"
+        required
+        placeholder="จำนวนบิด"
+        className="px-4 py-2 w-full border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+        />
+        <button
+        type="button"
+        onClick={openModal}
+        className="w-full sm:w-[60px] h-[42px] bg-[#4047A1] hover:bg-blue-700 !text-white rounded-r-lg font-semibold shadow transition-all"
+        >
+        บิด
+        </button>
+      </div>
+    </div>
 ) : stylish == 3 ? (
   <button
     onClick={openModal}

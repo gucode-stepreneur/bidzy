@@ -10,7 +10,7 @@ const socketConfig = {
   timeout: 20000,
 };
 
-export const socket = isBrowser ? io('https://bidzy-mini-mvp-env.up.railway.app/', socketConfig) : {};
+export const socket = isBrowser ? io('localhost:3000', socketConfig) : {};
 
 // Add connection event listeners for debugging
 if (isBrowser) {
