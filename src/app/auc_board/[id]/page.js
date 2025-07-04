@@ -26,6 +26,23 @@ export default function auc_detail(){
 
     const params = useParams();
 
+    // ฟังก์ชันสำหรับจัดการ URL รูปภาพ
+    function getImageUrl(path) {
+      if (!path) return null;
+      
+      // ถ้าเป็น URL ของ Cloudinary (เริ่มต้นด้วย https://res.cloudinary.com)
+      if (path.startsWith('https://res.cloudinary.com')) {
+        return path;
+      }
+      
+      // ถ้าเป็นชื่อไฟล์เก่า (ไม่มี http:// หรือ https://)
+      if (!path.startsWith('http://') && !path.startsWith('https://')) {
+        return `/uploads/${path}`;
+      }
+      
+      return path;
+    }
+
     useEffect(()=>{
       const idFromSlug = params.id; // ดึงจาก path
       if (!idFromSlug) return;
@@ -90,9 +107,9 @@ export default function auc_detail(){
                   </div>
               <div className="w-[100%] flex justify-center border-[#4047A1] border-[0.5px] border-dashed relative">
                 <div className="w-[50%] h-max overflow-hidden self-center">
-                  {path ? (
+                  {getImageUrl(path) ? (
                     <Image
-                      src={path}
+                      src={getImageUrl(path)}
                       width={2000}
                       height={2000}
                       className="object-contain w-full h-full"
@@ -101,13 +118,13 @@ export default function auc_detail(){
                   ) : (
                     <div className="w-full h-[300px] flex items-center justify-center bg-gray-100 rounded-lg">
                       <div className="text-center">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4047A1] mx-auto mb-4"></div>
-                        <p className="text-gray-500">กำลังโหลดรูปภาพ...</p>
+                        <div className="text-gray-400 text-6xl mb-4">🖼️</div>
+                        <p className="text-gray-500">ไม่มีรูปภาพ</p>
                       </div>
                     </div>
                   )}
                 </div>
-                {path && (
+                {getImageUrl(path) && (
                   <button
                     onClick={() => setIsImageFull(true)}
                     className="right-0 bottom-0 absolute"
@@ -153,7 +170,7 @@ export default function auc_detail(){
             </div>
 
             <Auc_board idArt={idArtWork} whichRole="bidder"/>
-            {isImageFull && path && (
+            {isImageFull && getImageUrl(path) && (
                 <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
                   <button
                     onClick={() => setIsImageFull(false)}
@@ -162,7 +179,7 @@ export default function auc_detail(){
                     ✕
                   </button>
                   <Image
-                    src={path}
+                    src={getImageUrl(path)}
                     width={2000}
                     height={2000}
                     alt="ภาพเต็มจอ"

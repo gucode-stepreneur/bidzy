@@ -107,6 +107,23 @@ const Dashboard = () => {
     return `${diffDays} วันที่แล้ว`;
   }
 
+  // ฟังก์ชันสำหรับจัดการ URL รูปภาพ
+  function getImageUrl(path) {
+    if (!path) return null;
+    
+    // ถ้าเป็น URL ของ Cloudinary (เริ่มต้นด้วย https://res.cloudinary.com)
+    if (path.startsWith('https://res.cloudinary.com')) {
+      return path;
+    }
+    
+    // ถ้าเป็นชื่อไฟล์เก่า (ไม่มี http:// หรือ https://)
+    if (!path.startsWith('http://') && !path.startsWith('https://')) {
+      return `/uploads/${path}`;
+    }
+    
+    return path;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br pt-20 from-slate-50 via-blue-50 to-indigo-100 relative">
       <Navbar />
@@ -149,20 +166,29 @@ const Dashboard = () => {
               const buttonBgClass = isExpired ? 'bg-gray-400 text-white' : 'bg-[#4047A1] text-white';
 
               return (
-                <div
+                <div 
                   key={index}
-                  className="group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/50 hover:border-blue-200/50 transform hover:-translate-y-2"
+                  className=" group bg-white/70 backdrop-blur-sm rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 overflow-hidden border border-white/50 hover:border-blue-200/50 transform hover:-translate-y-2"
                 >
                   {/* Image Container */}
-                  <div className="relative overflow-hidden">
+                  <div className="relative overflow-hidden  pointer-events-auto" onClick={() => link_work(item.id)}>
                     <div className="aspect-square relative bg-gradient-to-br from-blue-50 to-indigo-50">
-                      <Image
-                        src={item.path}
-                        alt={item.art_name}
-                        fill
-                        className="object-contain group-hover:scale-110 transition-transform duration-700"
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                      />
+                      {getImageUrl(item.path) ? (
+                        <Image
+                          src={getImageUrl(item.path)}
+                          alt={item.art_name}
+                          fill
+                          className="object-contain group-hover:scale-110 transition-transform duration-700"
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+                          <div className="text-center">
+                            <div className="text-gray-400 text-4xl mb-2">🖼️</div>
+                            <p className="text-gray-500 text-sm">ไม่มีรูปภาพ</p>
+                          </div>
+                        </div>
+                      )}
                       {/* Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                       
@@ -180,13 +206,13 @@ const Dashboard = () => {
                   </div>
 
                   {/* Content */}
-                  <div className="p-6">
+                  <div className="p-6 pointer-events-auto" onClick={() => link_work(item.id)}>
                     <h3 className="font-bold text-lg text-slate-800 mb-2 group-hover:text-blue-700 transition-colors duration-300">
                       {item.art_name}
                     </h3>
 
                     {/* description */}
-                    <div className='mb-4 flex flex-col gap-2'>
+                    <div className='mb-4 flex flex-col gap-2 pointer-events-auto' onClick={() => link_work(item.id)}>
                       <div className='flex flex-row gap-2 items-center '>
                         <span>
                           <div
