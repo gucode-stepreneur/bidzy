@@ -27,11 +27,18 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
   const params = useParams();
 
+
+  const [role , setRole] = useState('bidder')
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState("");
   const [winnerName , setWinnerName] = useState("")
 
+  {/* about sharing */}
+  const [modalOpen , setModalOpen] = useState(false)
+   const [link , setLink] = useState('')
+   const [copied, setCopied] = useState(false);
   useEffect(() => {
+    setRole(whichRole)
     const cookies = document.cookie;
     console.log(cookies);
     if (cookies.includes("token=")) {
@@ -139,7 +146,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
     const room = `auction_${idArtWork}`;
     console.log("🎯 เตรียมเข้าห้อง:", room);
-    console.log("👤 User Role:", whichRole);
+    console.log("👤 User Role:", role);
     console.log("🔗 Socket Connected:", socket.connected);
 
     const handleNewBid = (data) => {
@@ -186,12 +193,21 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
       socket.off("auction_ended", handleAuctionEnded);
       console.log("⬅️ ออกจากห้อง:", room);
     };
-  }, [idArtWork, socket.connected, whichRole]);
+  }, [idArtWork, socket.connected, role]);
 
   useEffect(() => {
     console.log("🔄 idArtWork เปลี่ยน:", idArtWork);
     console.log("📊 history อัพเดท:", history);
   }, [idArtWork, history]);
+
+  {/* check role */}
+  useEffect(()=>{
+    if(isLoggedIn == true && userName != "" && idArtWork != null && artistName != ""){
+      if(artistName == userName){
+        setRole('artist')
+      }
+    }
+  },[artistName])
 
 
  function winner_modal(status) {
@@ -220,8 +236,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
 
   function end_auction() {
-  const role = whichRole;
-
+  
   if (role == "bidder") {
     console.log("this is Bidder");
 
@@ -335,8 +350,24 @@ async function forceEndAuction() {
   }
 }
 
+ const share = () => {
+    const link = `${window.location.origin}/auc_board/${idArt}`
+    setLink(link)
+    navigator.clipboard.writeText(link);
+    setModalOpen(true)
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000); 
+  }
+  useEffect(() => {
+  const shouldShare = localStorage.getItem("shareAfterReload");
+  if (shouldShare === "true" && idArt) {  // รอ idArt ก่อน
+    localStorage.removeItem("shareAfterReload");
+    share();
+  }
+}, [idArt]);
+
   return (
-    <div className="w-full h-max flex flex-col  mx-auto bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
+    <div className="w-full h-max flex flex-col  mx-auto  pb-10 relative bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
     <div className="text-center py-5">
        <Countdown
         deadline={deadline}
@@ -347,8 +378,12 @@ async function forceEndAuction() {
     </div>
     <div className="h-[400px]  overflow-y-auto pt-5  p-4 space-y-3 border-t-1 border-b-1 border-dashed border-[#4047A1]">
       {history.length === 0 && (
-        <div className="text-center  text-xl md:text-4xl my-auto">ยังไม่มีบิดแรก ณ ตอนนี้</div>
-      )}      
+        <div className="flex items-center justify-center text-xl md:text-4xl h-full">
+          {deadlineExpired
+            ? "หมดเวลาโดยไม่มีคนบิด"
+            : "ยังไม่มีบิดแรก ณ ตอนนี้"}
+        </div>
+      )}     
       {history.slice(0, 5).map((item, index) => (
   <div
     key={item.id}
@@ -377,21 +412,18 @@ async function forceEndAuction() {
     </div>
      {deadlineExpired ? (
         <div className="text-center  pt-5 flex flex-col gap-4">
-          <div>
-            {modalType == "winner" ? "คุณชนะ !" : modalType == "loser" ? "คุณแพ้ในศึกครั้งนี้ !" : modalType == "artist" ? "งานประมูลจบแล้ว !" : "ไม่มีผู้ชนะ"}
-          </div>
-          <button className="self-center !text-white w-[90%] rounded-sm py-3 my-3 bg-[#4047A1]" onClick={end_auction}>
+          <button className="bg-[#4047A1] m-6 mb-0 rounded-xl p-3 py-4 !text-white flex items-center justify-center gap-2" onClick={end_auction}>
             {modalType == "winner" ? "กดเพื่อดูช่องทางติดต่อศิลปิน" : modalType == "loser" ? "กดเพื่อดูคำปลอบใจ" : modalType == "artist" ? "กดเพื่อดูช่องทางติดต่อผู้ชนะ" : "ไม่มีผู้ชนะ"}
           </button>
         </div>
         
         
       ) : (
-        whichRole === "bidder" &&
+        role === "bidder" &&
         (isLoggedIn ? (
     <form
       onSubmit={submitBid}
-      className="flex flex-col  items-start justify-center w-[100%] self-baseline mt-auto"
+      className="flex flex-col  items-start justify-center w-[100%] self-baseline  h-full mt-7"
     >
       <div className="text-center text-xl text-green-600 ml-5">
         <span className="text-lg ">บิดสูงสุด :</span> <span className="text-black font-bold">{highest}</span><span> บาท</span>
@@ -415,11 +447,26 @@ async function forceEndAuction() {
         ))
       )}
 
-      {/* สำหรับปิดการประมูล */}
-    {whichRole == "artist" && deadlineExpired == false &&  (
+    {role == "artist" && (
+    <button
+      onClick={share}
+      className="border-[#4047A1] border m-6 mb-0 rounded-xl p-3 !text-[#4047A1] flex items-center justify-center gap-2"
+    >
+      <span className="!text-[#4047A1]">คัดลอกลิงค์</span>
+      <Image
+        src="/icon/link.png"
+        width={20}
+        height={20}
+        alt="link icon"
+        className="object-contain"
+      />
+    </button>
+    )}
+
+    {role == "artist" && deadlineExpired == false &&  (
       <button
         onClick={forceEndAuction}
-        className="self-center bg-red-700 !text-white w-[90%] rounded-sm py-3 my-3 mb-5"
+        className="bg-red-700 border m-6 mb-0 rounded-xl p-3 !text-white flex items-center justify-center gap-2"
       >
         หยุดการประมูล
       </button>
@@ -434,6 +481,38 @@ async function forceEndAuction() {
     | Transport: <span className="font-medium">{transport}</span>
   </div>
 */}
+{modalOpen && (
+   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] text-center relative flex flex-col gap-10">
+    <button
+      onClick={() => setModalOpen(false)}
+      className="top-0 right-0 !text-black text-3xl px-4 py-2 rounded-lg absolute">
+      ×
+    </button>
+    <div className="w-[100px] h-full mx-auto ">
+            <Image src="/icon/correct.png" width={1000} height={1000} alt="mascot" className="object-contain" /> 
+    </div>
+    <div className="font-bold text-md">การประมูลเริ่มแล้ว แชร์ลิงค์ไปหานักประมูลเลย</div>
+    <div className="flex flex-row">
+      <div className="text-sm text-gray-800 bg-gray-100 px-4 py-3 rounded-l-xl break-words w-full font-mono text-center flex items-center">
+            {link}
+      </div>
+      <button
+          onClick={share}
+          className={`px-5 py-2 rounded-r-xl w-max  text-sm font-semibold transition-all shadow-md hover:scale-105 ${
+            copied
+              ? "bg-green-500 !text-white"
+              : "bg-blue-600 hover:bg-blue-700 !text-white"
+          }`}
+        >
+          {copied ? "คัดลอกเรียบร้อย" : "คัดลอกลิงก์"}
+      </button>
+    </div>
+   
+    </div>
+  </div>
+)}
+
 {showModal && (
   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] text-center relative">
@@ -449,7 +528,7 @@ async function forceEndAuction() {
       <h2 className="text-xl font-bold text-gray-800 mb-4 mt-4">
         {modalType === "winner" ? "🎉 คุณชนะการประมูล!" : modalType === "loser" ? "😢 คุณแพ้การประมูล" : "งานประมูลของคุณจบลงแล้ว"}
       </h2>
-      <p className="text-gray-600 mb-6">
+      <p className="text-gray-600 mb-6">  
         {modalType === "winner" 
           ? `ขอแสดงความยินดี! คุณเป็นผู้ชนะ` 
           : modalType == "loser"

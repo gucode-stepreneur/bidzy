@@ -30,6 +30,8 @@ model artwork {
     description String
     end_at DateTime
     start_at DateTime @default(now())
+
+    bidHistories bidHistory[] @relation("ArtWorkToBid")
 }
 
 model bidHistory{
@@ -38,4 +40,6 @@ model bidHistory{
     bidder_name String
     bid_at DateTime @default(now())
     id_artwork Int
+
+    artwork     artwork   @relation("ArtWorkToBid",fields: [id_artwork], references: [id])
 }

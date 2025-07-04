@@ -1,7 +1,7 @@
 // Countdown.jsx (หรือ .tsx ก็ได้)
 import { useEffect, useState } from 'react';
 
-export default function Countdown({ deadline, onExpire }) {
+export default function Countdown({ deadline, onExpire , stylish }) {
   const [timeLeft, setTimeLeft] = useState({});
   const [alreadyExpired, setAlreadyExpired] = useState(false);
 
@@ -41,13 +41,25 @@ export default function Countdown({ deadline, onExpire }) {
   return () => clearInterval(timer);
 }, [deadline]);
 
+ 
 
-  if (timeLeft.expired) return <p className="!text-red-600 text-xl font-bold p-3">หมดเวลาแล้ว</p>;
+
+  if (timeLeft.expired) return "หมดเวลาแล้ว";
 
   return (
+    <div>
+    {stylish == "for dashboard" ? (
+      <p className=' text-lg font-bold'> 
+        <span className='!text-white block text-sm font-bold'>{timeLeft.days}:{timeLeft.hours}:{timeLeft.minutes}:{timeLeft.seconds}</span> 
+      </p>
+    ):
+    (
     <p className='!text-[#ff002f] text-lg font-bold'>
       เหลือเวลา 
       <span className='block  !text-[#ff002f] text-3xl font-bold'>{timeLeft.days} <span className='!text-[#ff002f] text-lg'>วัน</span>  {timeLeft.hours} <span className='!text-[#ff002f] text-lg'>ชม</span>  {timeLeft.minutes} <span className='!text-[#ff002f] text-lg'>นาที</span>  {timeLeft.seconds} <span className='!text-[#ff002f] text-lg'>วิ</span></span> 
     </p>
+    )
+  }
+    </div>
   );
 }

@@ -19,6 +19,7 @@ export default function auc_detail(){
     const [sellerName , setSellerName] = useState('กำลังเชื่อมต่อ ...')
     const [start_price , setStartPrice] = useState(0);
     const [highest , setHighest ] = useState(null);
+    
 
     const [isImageFull, setIsImageFull] = useState(false);
 
@@ -63,6 +64,7 @@ export default function auc_detail(){
       .catch(error => console.log(error));
     }
   }, [params.id]);
+
 
 
 

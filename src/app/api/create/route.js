@@ -45,10 +45,11 @@ export async function POST(request) {
     }
   });
 
-  return new Response(JSON.stringify({ success: true, filename }), {
+  return new Response(JSON.stringify({ success: true, artwork }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });
+
 
 } catch (error) {
   console.error("Create error:", error); // ดูใน terminal

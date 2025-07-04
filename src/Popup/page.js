@@ -54,7 +54,7 @@ export const Popup = ({ stylish , highest }) => {
   </div>
 ) : stylish == 2 ? (
     <div
-      className="flex flex-col  items-start justify-center w-[100%] self-baseline mt-auto"
+      className="flex flex-col  items-start justify-center w-[100%] self-baseline h-full mt-7"
     >
       <div className="text-center text-xl text-green-600 ml-5">
         <span className="text-lg ">บิดสูงสุด :</span> <span className="text-black font-bold">{highest}</span><span> บาท</span>
@@ -83,12 +83,27 @@ export const Popup = ({ stylish , highest }) => {
   >
     เริ่มประมูล
   </button>
+) : stylish == 4? (
+  <div className="">
+      <div
+        onClick={openModal}
+        className="flex flex-row items-center justify-center gap-3 border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
+      >
+        <Image
+          className="object-contain"
+          src="/icon/user_nav.png"
+          width={20}
+          height={20}
+          alt="User icon"
+        />
+      </div>
+    </div>
 ) : null}
 
 
       <div
         id="modal"
-        className={`fixed bottom-10 left-1/2 transform -translate-x-1/2 w-[50vw] h-[300px] bg-white shadow-lg ${
+        className={`z-[999999] fixed top-10 left-[50%] transform -translate-x-1/2 w-[50vw] h-[80vh] bg-white shadow-lg ${
           isOpen ? "block" : "hidden"
         }`}
       >

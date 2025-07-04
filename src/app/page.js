@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Popup from "@/Popup/page";
 import { Auc_board } from "@/Auc_board/page";
 import Image from "next/image";
+import Navbar from "@/Navbar/page";
 
 const page = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -15,7 +16,6 @@ const page = () => {
   const [isHave, setIsHave] = useState(false);
    const [previewImage, setPreviewImage] = useState(null); 
 
-   const [isExpiredFromBoard, setIsExpiredFromBoard] = useState(false);
 
    const [modalOpen , setModalOpen] = useState(false)
    const [link , setLink] = useState('')
@@ -44,29 +44,7 @@ const page = () => {
     setIsLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (isLoggedIn && userName) {
-      fetch("/api/findwork_seller", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: userName }),
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          console.log(data);
-          if (data.length > 0) {
-            const id_art = data[0].id
-            setIdArt(id_art)
-            setDeadline(data[0].end_at); // ✅ ใช้ setState ถูกต้อง
-            setIsHave(true);
-          }
-        })
-        .catch((err) => console.error(err));
-    }
-  }, [isLoggedIn, userName]);
-
+  
 
    const handleFileChange = (e) => {
     const icon = document.getElementById('upload_icon')
@@ -96,13 +74,17 @@ const page = () => {
       body: formData,
     });
 
-    const result = await response.json();
-    console.log(result);
 
     // ถ้าตอบกลับมีสถานะหรือข้อมูลแสดงว่าสำเร็จ
     if (response.ok) {
+      const result = await response.json();
+      console.log(result);
+      const id_art = result.artwork.id
+      setIdArt(id_art)
+      const link = `${window.location.origin}/auc_board/${id_art}`
        localStorage.setItem("shareAfterReload", "true");
-      window.location.reload();
+      window.location = link;
+      
     }
   } catch (error) {
     console.error("Upload failed:", error);
@@ -110,25 +92,12 @@ const page = () => {
 };
 
   
-  const share = () => {
-    const link = `${window.location.origin}/auc_board/${idArt}`
-    setLink(link)
-    navigator.clipboard.writeText(link);
-    setModalOpen(true)
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000); 
-  }
-  useEffect(() => {
-  const shouldShare = localStorage.getItem("shareAfterReload");
-  if (shouldShare === "true" && idArt) {  // รอ idArt ก่อน
-    localStorage.removeItem("shareAfterReload");
-    share();
-  }
-}, [idArt]);
+ 
 
   return (
-    <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-8 bg-gray-50 min-h-screen">
-      <div className="w-[100%] h-max">
+    <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-8  bg-gray-50 min-h-screen">
+      <Navbar />
+      <div className="w-[100%] h-max mt-25">
   
 
   <form id = "createForm"
@@ -223,70 +192,20 @@ const page = () => {
       className="block w-full px-4 py-2 border border-gray-300 rounded-lg h-[200px]"
       required
     ></textarea>
-
-{isHave ? (
-  <>
-    {isExpiredFromBoard && (
+    {/*if user logged in */}
+    { !isLoggedIn ? (
+      <Popup stylish={3} />
+    ) : (
       <input
-    value="เริ่มประมูลครั้งใหม่"
-    type="submit"
-    className="bg-[#4047A1] !text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
-  />
+        value="เริ่มประมูล"
+        type="submit"
+        className="bg-[#4047A1] !text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+      />
     )}
-    <div
-      onClick={share}
-      className="text-center !text-[#4047A1] border-1 border-[#4047A1] px-6 py-2 rounded-lg transition pointer-events-auto"
-    >
-      คัดลอกลิงค์
-    </div>
-  </>
-) : !isLoggedIn ? (
-  <Popup stylish={3} />
-) : (
-  <input
-    value="เริ่มประมูล"
-    type="submit"
-    className="bg-[#4047A1] !text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
-  />
-)}
-
   </form>
 </div>
-  <div className="w-[100%]">
-    <Auc_board idArt={idArt} whichRole="artist"  onDeadlineExpired={() => setIsExpiredFromBoard(true)} />
-  </div>
+  
 
-{modalOpen && (
-   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div className="bg-white p-6 rounded-xl shadow-xl w-[400px] text-center relative flex flex-col gap-10">
-    <button
-      onClick={() => setModalOpen(false)}
-      className="top-0 right-0 !text-black text-3xl px-4 py-2 rounded-lg absolute">
-      ×
-    </button>
-    <div className="w-[100px] h-full mx-auto ">
-            <Image src="/icon/correct.png" width={1000} height={1000} alt="mascot" className="object-contain" /> 
-    </div>
-    <div className="font-bold text-md">การประมูลเริ่มแล้ว แชร์ลิงค์ไปหานักประมูลเลย</div>
-    <div className="flex flex-row">
-      <div className="text-sm text-gray-800 bg-gray-100 px-4 py-3 rounded-l-xl break-words w-full font-mono text-center flex items-center">
-            {link}
-      </div>
-      <button
-          onClick={share}
-          className={`px-5 py-2 rounded-r-xl w-max  text-sm font-semibold transition-all shadow-md hover:scale-105 ${
-            copied
-              ? "bg-green-500 !text-white"
-              : "bg-blue-600 hover:bg-blue-700 !text-white"
-          }`}
-        >
-          {copied ? "คัดลอกเรียบร้อย" : "คัดลอกลิงก์"}
-      </button>
-    </div>
-   
-    </div>
-  </div>
-)}
 
 
 
