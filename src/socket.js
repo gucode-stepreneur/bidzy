@@ -10,7 +10,10 @@ const socketConfig = {
   timeout: 20000,
 };
 
-export const socket = isBrowser ? io('localhost:3000', socketConfig) : {};
+export const socket = isBrowser ? io(
+  process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000",
+  socketConfig
+) : {};
 
 // Add connection event listeners for debugging
 if (isBrowser) {
