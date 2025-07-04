@@ -22,6 +22,7 @@ export default function auc_detail(){
     
 
     const [isImageFull, setIsImageFull] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     const params = useParams();
 
@@ -31,39 +32,44 @@ export default function auc_detail(){
       setIdArtWork(idFromSlug);
       
       if(idFromSlug){
-      fetch('/api/findwork_board', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ idFromSlug })
-      })
-      .then(response => response.json())
-      .then(data => {
-         const deadline = data.deadline.end_at ?? "";
-         const start_price = data.deadline.start_price ?? 0;
-         const bid_rate = data.deadline.bid_rate ?? 0;
-         const fee = data.deadline.fee ?? 0;
-         const artName = data.deadline.art_name ?? '...'
-         const description = data.deadline.description  ?? ""
-         const sellerName = data.deadline.name ?? "ไม่เจอชื่อศิลปิน"
-         const path = data.deadline.path ?? '';
-         console.log("📊 ข้อมูลทั้งหมด สำหรับโชว์งานศิลปะ:", data)
-         console.log(description , "คำอธิบาย")
-         console.log("⏰ deadline:", deadline)
-         console.log("📈 bid_rate:", bid_rate)
-         setPath(path)
-         setBidRate(bid_rate)
-         setFee(fee)
-         setStartPrice(start_price)
-         setArtName(artName)
-         setSellerName(sellerName)
-         setDescription(description)
-         setEnd(deadline)
-      })
-      .catch(error => console.log(error));
-    }
-  }, [params.id]);
+        setIsLoading(true);
+        fetch('/api/findwork_board', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ idFromSlug })
+        })
+        .then(response => response.json())
+        .then(data => {
+           const deadline = data.deadline.end_at ?? "";
+           const start_price = data.deadline.start_price ?? 0;
+           const bid_rate = data.deadline.bid_rate ?? 0;
+           const fee = data.deadline.fee ?? 0;
+           const artName = data.deadline.art_name ?? '...'
+           const description = data.deadline.description  ?? ""
+           const sellerName = data.deadline.name ?? "ไม่เจอชื่อศิลปิน"
+           const path = data.deadline.path ?? '';
+           console.log("📊 ข้อมูลทั้งหมด สำหรับโชว์งานศิลปะ:", data)
+           console.log(description , "คำอธิบาย")
+           console.log("⏰ deadline:", deadline)
+           console.log("📈 bid_rate:", bid_rate)
+           setPath(path)
+           setBidRate(bid_rate)
+           setFee(fee)
+           setStartPrice(start_price)
+           setArtName(artName)
+           setSellerName(sellerName)
+           setDescription(description)
+           setEnd(deadline)
+           setIsLoading(false);
+        })
+        .catch(error => {
+          console.log(error);
+          setIsLoading(false);
+        });
+      }
+    }, [params.id]);
 
 
 
@@ -72,25 +78,43 @@ export default function auc_detail(){
 
   return  <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-10 bg-gray-50 min-h-screen">
             <div className="w-[100%] flex flex-col gap-5">
-              <div className="text-xl text-center">
-                <span className=" font-bold">ศิลปิน : </span><span className="text-2xl font-bold !text-[#4047A1]">{sellerName}</span>
-              </div>
+              {isLoading ? (
+                <div className="text-center py-20">
+                  <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#4047A1] mx-auto mb-4"></div>
+                  <p className="text-gray-600 text-lg">กำลังโหลดข้อมูล...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="text-xl text-center">
+                    <span className=" font-bold">ศิลปิน : </span><span className="text-2xl font-bold !text-[#4047A1]">{sellerName}</span>
+                  </div>
               <div className="w-[100%] flex justify-center border-[#4047A1] border-[0.5px] border-dashed relative">
                 <div className="w-[50%] h-max overflow-hidden self-center">
-                  <Image
-                    src={`/uploads/${path}`}
-                    width={2000}
-                    height={2000}
-                    className="object-contain w-full h-full"
-                    alt="ภาพศิลปะ"
-                  />
+                  {path ? (
+                    <Image
+                      src={path}
+                      width={2000}
+                      height={2000}
+                      className="object-contain w-full h-full"
+                      alt="ภาพศิลปะ"
+                    />
+                  ) : (
+                    <div className="w-full h-[300px] flex items-center justify-center bg-gray-100 rounded-lg">
+                      <div className="text-center">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#4047A1] mx-auto mb-4"></div>
+                        <p className="text-gray-500">กำลังโหลดรูปภาพ...</p>
+                      </div>
+                    </div>
+                  )}
                 </div>
-                <button
+                {path && (
+                  <button
                     onClick={() => setIsImageFull(true)}
                     className="right-0 bottom-0 absolute"
                   >
-                    <Image src="/icon/scalePic.png" width={30} height={30} />
-                </button>
+                    <Image src="/icon/scalePic.png" alt="ปุ่มเพิ่มขนาดภาพ" width={30} height={30} />
+                  </button>
+                )}
               </div>
               <div className="text-lg font-medium text-gray-700  text-center">
                 <span className="text-gray-500 font-bold">ชื่อภาพ :</span> <span className="text-2xl font-bold !text-[#4047A1]">{artName}</span> 
@@ -124,10 +148,12 @@ export default function auc_detail(){
                 <div className="text-gray-500 font-medium mb-2">คำอธิบายภาพ :</div>
                 <div className="text-gray-700">{description}</div>
               </div>
+                </>
+              )}
             </div>
 
             <Auc_board idArt={idArtWork} whichRole="bidder"/>
-            {isImageFull && (
+            {isImageFull && path && (
                 <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center">
                   <button
                     onClick={() => setIsImageFull(false)}
@@ -136,7 +162,7 @@ export default function auc_detail(){
                     ✕
                   </button>
                   <Image
-                    src={`/uploads/${path}`}
+                    src={path}
                     width={2000}
                     height={2000}
                     alt="ภาพเต็มจอ"

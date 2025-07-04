@@ -14,7 +14,7 @@ const Dashboard = () => {
   const [artWork, setArtWork] = useState([]);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [defaultPath, setDefaultPath] = useState("/uploads/");
+  // ไม่ต้องใช้ defaultPath แล้ว เพราะ item.path จะเป็น URL ของ Cloudinary
 
   const [modalOpen , setModalOpen] = useState(false)
   const [link , setLink] = useState('')
@@ -157,7 +157,7 @@ const Dashboard = () => {
                   <div className="relative overflow-hidden">
                     <div className="aspect-square relative bg-gradient-to-br from-blue-50 to-indigo-50">
                       <Image
-                        src={defaultPath + item.path}
+                        src={item.path}
                         alt={item.art_name}
                         fill
                         className="object-contain group-hover:scale-110 transition-transform duration-700"
