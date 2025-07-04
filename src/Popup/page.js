@@ -13,6 +13,14 @@ export const Popup = ({ stylish , highest }) => {
   const closeModal = () => setIsOpen(false);
 
   const api = () => {
+    // ถ้ามี NextAuth session ให้ใช้ชื่อจาก session
+    if (session?.user?.name) {
+      closeModal();
+      window.location.reload();
+      return;
+    }
+
+    // ถ้าไม่มี session ให้ใช้ระบบเดิม (ป้อนชื่อเอง)
     const name = nameRef.current?.value;
 
     if (!name) {
@@ -119,22 +127,42 @@ export const Popup = ({ stylish , highest }) => {
         </button>
 
         <div className="p-4">
-          <label>*จำชื่อที่ป้อนไว้ให้ดีนะครับ*</label>
-          <input
-            type="text"
-            placeholder="ป้อนชื่อที่จำได้"
-            className="block"
-            name="name"
-            ref={nameRef}
-            required
-          />
-          <button
-            type="button"
-            onClick={api}
-            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded"
-          >
-            ส่งข้อมูล
-          </button>
+          {session?.user ? (
+            <div className="text-center">
+              <p className="text-green-600 font-semibold mb-4">
+                ยินดีต้อนรับ {session.user.name}!
+              </p>
+              <p className="text-gray-600 mb-4">
+                คุณได้เข้าสู่ระบบแล้ว สามารถดำเนินการต่อได้เลย
+              </p>
+              <button
+                type="button"
+                onClick={api}
+                className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
+              >
+                ดำเนินการต่อ
+              </button>
+            </div>
+          ) : (
+            <>
+              <label>*จำชื่อที่ป้อนไว้ให้ดีนะครับ*</label>
+              <input
+                type="text"
+                placeholder="ป้อนชื่อที่จำได้"
+                className="block w-full px-3 py-2 border border-gray-300 rounded mb-2"
+                name="name"
+                ref={nameRef}
+                required
+              />
+              <button
+                type="button"
+                onClick={api}
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+              >
+                ส่งข้อมูล
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>
