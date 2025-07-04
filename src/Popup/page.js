@@ -132,6 +132,10 @@ export const Popup = ({ stylish , highest }) => {
               <p className="text-green-600 font-semibold mb-4">
                 ยินดีต้อนรับ {session.user.name}!
               </p>
+              <div className="text-gray-600 mb-4 text-sm">
+                <p><strong>Facebook ID:</strong> {session.facebookId || 'ไม่ระบุ'}</p>
+                <p><strong>Provider:</strong> {session.provider || 'ไม่ระบุ'}</p>
+              </div>
               <p className="text-gray-600 mb-4">
                 คุณได้เข้าสู่ระบบแล้ว สามารถดำเนินการต่อได้เลย
               </p>

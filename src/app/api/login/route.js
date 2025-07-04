@@ -5,6 +5,8 @@ export async function POST(request) {
     
   const body = await request.json();
   const name = body.name;
+  const facebookId = body.facebookId;
+  const provider = body.provider;
 
   if (!name || name.trim() === "") {
     return new Response(
@@ -17,7 +19,24 @@ export async function POST(request) {
     let user = await prisma.user.findUnique({ where: { name } });
 
     if (!user) {
-      user = await prisma.user.create({ data: { name } });
+      // สร้าง user ใหม่พร้อม facebookId ถ้ามี
+      const userData = { name };
+      if (facebookId) {
+        userData.facebookId = facebookId;
+      }
+      if (provider) {
+        userData.provider = provider;
+      }
+      user = await prisma.user.create({ data: userData });
+    } else if (facebookId && !user.facebookId) {
+      // อัพเดท facebookId ถ้ายังไม่มี
+      user = await prisma.user.update({
+        where: { name },
+        data: { 
+          facebookId,
+          provider: provider || user.provider
+        }
+      });
     }
 
     // เซ็ต cookie เก็บ name

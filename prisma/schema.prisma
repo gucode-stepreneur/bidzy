@@ -17,10 +17,11 @@ datasource db {
 model user {
   id    Int     @id @default(autoincrement())
   name String @unique
-  fbprofile String
-  fbname String 
-  email String @unique
-  phone Int @unique
+  fbLink String?
+  email String? @unique
+  phone Int? @unique
+  facebookId String? @unique
+  provider String?
 }
 
 model artwork {
