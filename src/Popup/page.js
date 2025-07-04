@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react"
 import { useRef, useState } from "react";
 import Image from "next/image";
 export const Popup = ({ stylish , highest }) => {
+  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const nameRef = useRef();
 
