@@ -33,6 +33,11 @@ export const authOptions = {
   session: {
     strategy: "jwt",
   },
+  debug: process.env.NODE_ENV === "development",
+  pages: {
+    signIn: "/",
+    error: "/error",
+  },
 };
 
 export const { handlers, auth, signIn, signOut } = NextAuth(authOptions); 
