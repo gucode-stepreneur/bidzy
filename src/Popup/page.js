@@ -1,4 +1,6 @@
 "use client";
+import FacebookBtn from "@/components/FacebookBtn/page"
+import { useSession } from "next-auth/react"
 
 import { useRef, useState } from "react";
 import Image from "next/image";
@@ -107,6 +109,7 @@ export const Popup = ({ stylish , highest }) => {
           isOpen ? "block" : "hidden"
         }`}
       >
+        <FacebookBtn />
         <button
           onClick={closeModal}
           className="absolute top-2 right-2 text-black font-bold"
