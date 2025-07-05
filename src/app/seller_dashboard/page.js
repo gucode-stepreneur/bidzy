@@ -1,11 +1,14 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
+import { useSession } from "next-auth/react";
 import Image from 'next/image';
 import Countdown from '@/Countdown/page';
 import Navbar from '@/Navbar/page';
 
 const Dashboard = () => {
+  const { data: session, status } = useSession();
+  
   const [skip, setSkip] = useState(0);    // เก็บจำนวนที่ข้ามไปแล้ว
   const take = 10;                        // โหลดทีละ 10 รายการ
   const [hasMore, setHasMore] = useState(true);  // เช็คว่ามีข้อมูลเพิ่มไหม
@@ -22,8 +25,6 @@ const Dashboard = () => {
 
   
   useEffect(() => {
-    setRole(whichRole)
-    
     // ใช้ NextAuth session แทน cookie
     if (session?.user?.name) {
       setIsLoggedIn(true);
@@ -35,7 +36,7 @@ const Dashboard = () => {
     }
 
     setIsLoaded(true);
-  }, [session, whichRole]);
+  }, [session]);
 
   useEffect(() => {
   if (userName !== "no name for now") {

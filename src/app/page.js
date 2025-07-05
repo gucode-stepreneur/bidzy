@@ -3,11 +3,14 @@
 import Countdown from "@/Countdown/page";
 import { useEffect, useState } from "react";
 import Popup from "@/Popup/page";
+import { useSession } from "next-auth/react"
 import { Auc_board } from "@/Auc_board/page";
 import Image from "next/image";
 import Navbar from "@/Navbar/page";
 
 const page = () => {
+  const { data: session, status } = useSession();
+  
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [idArt , setIdArt] = useState(null)
   const [isLoaded, setIsLoaded] = useState(false);
