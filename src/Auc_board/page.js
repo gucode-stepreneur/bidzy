@@ -40,8 +40,6 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
    const [link , setLink] = useState('')
    const [copied, setCopied] = useState(false);
   useEffect(() => {
-    setRole(whichRole)
-    
     // ใช้ NextAuth session แทน cookie
     if (session?.user?.name) {
       setIsLoggedIn(true);
@@ -53,7 +51,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
     }
 
     setIsLoaded(true);
-  }, [session, whichRole]);
+  }, [session]);
 
   useEffect(() => {
     
@@ -196,12 +194,28 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
   {/* check role */}
   useEffect(()=>{
+    console.log("🔍 เช็ค Role:", {
+      isLoggedIn,
+      userName,
+      idArtWork,
+      artistName,
+      whichRole
+    });
+    
     if(isLoggedIn == true && userName != "" && idArtWork != null && artistName != ""){
       if(artistName == userName){
         setRole('artist')
+        console.log("🎨 ผู้ใช้เป็นศิลปินของงานนี้:", userName);
+      } else {
+        setRole('bidder')
+        console.log("👤 ผู้ใช้เป็นผู้บิด:", userName);
       }
+    } else if (whichRole) {
+      // ถ้าไม่มีข้อมูลครบ ให้ใช้ whichRole ที่ส่งมา
+      setRole(whichRole)
+      console.log("📋 ใช้ whichRole ที่ส่งมา:", whichRole);
     }
-  },[artistName, isLoggedIn, userName, idArtWork])
+  },[artistName, isLoggedIn, userName, idArtWork, whichRole])
 
 
  function winner_modal(status) {
@@ -262,6 +276,12 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
   function submitBid(e) {
     e.preventDefault();
+
+    // ✅ เช็ค role ก่อน - ศิลปินไม่สามารถบิดงานตัวเองได้
+    if (role === "artist") {
+      alert("ศิลปินไม่สามารถบิดงานของตัวเองได้");
+      return;
+    }
 
     const bid_amount = parseInt(e.target.bid_amount.value);
     const currentHighest = highest || 0;
@@ -413,32 +433,32 @@ async function forceEndAuction() {
         
         
       ) : (
-        role === "bidder" &&
-        (isLoggedIn ? (
-    <form
-      onSubmit={submitBid}
-      className="flex flex-col  items-start justify-center w-[100%] self-baseline  h-full mt-7"
-    >
-      <div className="text-center text-xl text-green-600 ml-5">
-        <span className="text-lg ">บิดสูงสุด :</span> <span className="text-black font-bold">{highest}</span><span> บาท</span>
-      </div>
-      <div className="flex flex-row w-[100%] p-5 pt-2">
-        <input
-        type="number"
-        name="bid_amount"
-        required
-        placeholder="จำนวนบิด"
-        className="px-4 py-2 w-full border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-        />
-        <input
-        type="submit"
-        value="บิด"
-        className="w-full sm:w-[60px] h-[42px] bg-[#4047A1] hover:bg-blue-700 !text-white rounded-r-lg font-semibold shadow transition-all"
-        />
-      </div>
-    </form>         ) : (
+        role === "bidder" && isLoggedIn ? (
+          <form
+            onSubmit={submitBid}
+            className="flex flex-col  items-start justify-center w-[100%] self-baseline  h-full mt-7"
+          >
+            <div className="text-center text-xl text-green-600 ml-5">
+              <span className="text-lg ">บิดสูงสุด :</span> <span className="text-black font-bold">{highest}</span><span> บาท</span>
+            </div>
+            <div className="flex flex-row w-[100%] p-5 pt-2">
+              <input
+              type="number"
+              name="bid_amount"
+              required
+              placeholder="จำนวนบิด"
+              className="px-4 py-2 w-full border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              />
+              <input
+              type="submit"
+              value="บิด"
+              className="w-full sm:w-[60px] h-[42px] bg-[#4047A1] hover:bg-blue-700 !text-white rounded-r-lg font-semibold shadow transition-all"
+              />
+            </div>
+          </form>
+        ) : role === "bidder" && !isLoggedIn ? (
           <Popup stylish={2} highest={highest} />
-        ))
+        ) : null
       )}
 
     {role == "artist" && (
