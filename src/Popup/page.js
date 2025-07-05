@@ -1,27 +1,72 @@
 "use client";
 import FacebookBtn from "@/components/FacebookBtn/page"
-import { useSession } from "next-auth/react"
+import { useSession, signOut } from "next-auth/react"
 import { useEffect } from "react";
 import { useRef, useState } from "react";
 import Image from "next/image";
+
 export const Popup = ({ stylish , highest }) => {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
-  const nameRef = useRef();
+  const [userHasPhone, setUserHasPhone] = useState(false);
+  const [forcePhoneCheck, setForcePhoneCheck] = useState(false);
   const phoneRef = useRef();
 
   const openModal = () => setIsOpen(true);
-  const closeModal = () => setIsOpen(false);
-
+  const closeModal = () => {
+    if (forcePhoneCheck) {
+      return;
+    }
+    setIsOpen(false);
+  };
 
   useEffect(() => {
-    if (session?.user?.name && !isLoaded) {
-      checkUser();
+    if (status === "loading") return;
+    
+    if (session?.user?.name) {
+      checkUserImmediately();
     }
-  }, [session, isLoaded]);
+  }, [session, status]);
+
+  const checkUserImmediately = async () => {
+    if (!session?.facebookId) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/check-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ facebookId: session.facebookId }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.exists) {
+        if (data.needsPhoneNumber) {
+          setIsNewUser(true);
+          setForcePhoneCheck(true);
+          setIsOpen(true);
+        } else {
+          setUserHasPhone(true);
+          setIsLoaded(true);
+          setForcePhoneCheck(false);
+        }
+      } else {
+        setIsNewUser(true);
+        setForcePhoneCheck(true);
+        setIsOpen(true);
+      }
+    } catch (error) {
+      console.error("Error checking user:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const checkUser = async () => {
     if (!session?.facebookId) return;
@@ -40,17 +85,17 @@ export const Popup = ({ stylish , highest }) => {
       
       if (data.exists) {
         if (data.needsPhoneNumber) {
-          // ถ้ามี user แต่ไม่มีเบอร์โทร ให้แสดงฟอร์มกรอกเบอร์โทร
           setIsNewUser(true);
+          setForcePhoneCheck(true);
         } else {
-          // ถ้ามี user และมีเบอร์โทรแล้ว ให้ผ่านไปเลย
+          setUserHasPhone(true);
           setIsLoaded(true);
+          setForcePhoneCheck(false);
           closeModal();
-          // ไม่ต้อง reload แล้ว ให้ parent component จัดการเอง
         }
       } else {
-        // ถ้าเป็น user ใหม่ ให้แสดงฟอร์มกรอกเบอร์โทร
         setIsNewUser(true);
+        setForcePhoneCheck(true);
       }
     } catch (error) {
       console.error("Error checking user:", error);
@@ -88,9 +133,11 @@ export const Popup = ({ stylish , highest }) => {
       const data = await response.json();
       
       if (response.ok && data.success) {
+        setUserHasPhone(true);
         setIsLoaded(true);
+        setForcePhoneCheck(false);
         closeModal();
-        // ไม่ต้อง reload แล้ว ให้ parent component จัดการเอง
+        alert("บันทึกเบอร์โทรศัพท์เรียบร้อยแล้ว!");
       } else {
         console.error("API Error:", data);
         alert(`เกิดข้อผิดพลาด: ${data.error || 'ไม่ทราบสาเหตุ'}`);
@@ -103,35 +150,8 @@ export const Popup = ({ stylish , highest }) => {
     }
   };
 
-  const api = () => {
-    // ถ้ามี NextAuth session ให้เช็คข้อมูลใน database
-    if (session?.user?.name) {
-      checkUser();
-      return;
-    }
-
-    // ถ้าไม่มี session ให้ใช้ระบบเดิม (ป้อนชื่อเอง)
-    const name = nameRef.current?.value;
-
-    if (!name) {
-      alert("กรุณาป้อนชื่อก่อนส่ง");
-      return;
-    }
-
-    fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name }),
-    })
-          .then((res) => res.json())
-    .then((data) => {
-       setIsLoaded(true);
-       closeModal();
-       // ไม่ต้อง reload แล้ว ให้ parent component จัดการเอง
-    })
-      .catch((err) => console.log(err));
+  const handleLogout = async () => {
+    await signOut({ callbackUrl: '/' });
   };
 
   return (
@@ -209,13 +229,14 @@ export const Popup = ({ stylish , highest }) => {
           isOpen ? "block" : "hidden"
         }`}
       >
-        <FacebookBtn />
-        <button
-          onClick={closeModal}
-          className="absolute top-2 right-2 text-black font-bold"
-        >
-          X
-        </button>
+        {!forcePhoneCheck && (
+          <button
+            onClick={closeModal}
+            className="absolute top-2 right-2 text-black font-bold"
+          >
+            X
+          </button>
+        )}
 
         <div className="p-4">
           {session?.user ? (
@@ -229,6 +250,11 @@ export const Popup = ({ stylish , highest }) => {
               
               {isNewUser ? (
                 <div className="text-center">
+                  {forcePhoneCheck && (
+                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                      <strong>สำคัญ!</strong> กรุณากรอกเบอร์โทรศัพท์เพื่อใช้งานระบบ
+                    </div>
+                  )}
                   <p className="text-blue-600 mb-4">
                     กรุณากรอกเบอร์โทรศัพท์เพื่อดำเนินการต่อ
                   </p>
@@ -248,6 +274,19 @@ export const Popup = ({ stylish , highest }) => {
                     {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
                   </button>
                 </div>
+              ) : userHasPhone ? (
+                <div className="text-center">
+                  <p className="text-green-600 mb-4">
+                    ข้อมูลครบถ้วนแล้ว
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
+                  >
+                    ออกจากระบบ
+                  </button>
+                </div>
               ) : (
                 <>
                   <p className="text-gray-600 mb-4">
@@ -255,34 +294,22 @@ export const Popup = ({ stylish , highest }) => {
                   </p>
                   <button
                     type="button"
-                    onClick={api}
+                    onClick={checkUser}
                     disabled={isLoading}
                     className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition disabled:opacity-50"
                   >
-                    {isLoading ? "กำลังตรวจสอบ..." : "ดำเนินการต่อ"}
+                    {isLoading ? "กำลังตรวจสอบ..." : "ตรวจสอบข้อมูล"}
                   </button>
                 </>
               )}
             </div>
           ) : (
-            <>
-              <label>*จำชื่อที่ป้อนไว้ให้ดีนะครับ*</label>
-              <input
-                type="text"
-                placeholder="ป้อนชื่อที่จำได้"
-                className="block w-full px-3 py-2 border border-gray-300 rounded mb-2"
-                name="name"
-                ref={nameRef}
-                required
-              />
-              <button
-                type="button"
-                onClick={api}
-                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
-              >
-                ส่งข้อมูล
-              </button>
-            </>
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">
+                กรุณาเข้าสู่ระบบด้วย Facebook
+              </p>
+              <FacebookBtn />
+            </div>
           )}
         </div>
       </div>
