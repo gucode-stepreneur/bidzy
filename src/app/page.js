@@ -10,7 +10,7 @@ import Navbar from "@/Navbar/page";
 
 const page = () => {
   const { data: session, status } = useSession();
-  
+
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [idArt , setIdArt] = useState(null)
   const [isLoaded, setIsLoaded] = useState(false);
@@ -26,7 +26,6 @@ const page = () => {
    const [copied, setCopied] = useState(false);
 
    useEffect(() => {
-    setRole(whichRole)
     
     // ใช้ NextAuth session แทน cookie
     if (session?.user?.name) {
@@ -39,7 +38,7 @@ const page = () => {
     }
 
     setIsLoaded(true);
-  }, [session, whichRole]);
+  }, [session]);
 
   
 
