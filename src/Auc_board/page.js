@@ -3,11 +3,13 @@
 import { use, useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { useParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Popup from "@/Popup/page";
 import Countdown from "@/Countdown/page";
 import Image from "next/image";
 
 export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
+  const { data: session, status } = useSession();
 
   const [idArtWork , setIdArtWork] = useState(null)
   const [start_price , setStartPrice] = useState(0);
@@ -39,27 +41,19 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
    const [copied, setCopied] = useState(false);
   useEffect(() => {
     setRole(whichRole)
-    const cookies = document.cookie;
-    console.log(cookies);
-    if (cookies.includes("token=")) {
+    
+    // ใช้ NextAuth session แทน cookie
+    if (session?.user?.name) {
       setIsLoggedIn(true);
+      setUsername(session.user.name);
+      console.log("NextAuth user:", session.user.name);
+    } else {
+      setIsLoggedIn(false);
+      setUsername("");
     }
-
-    function getCookie(name) {
-      const cookieArray = cookies.split('; ');
-      for (const cookie of cookieArray) {
-        const [key, value] = cookie.split('=');
-        if (key === name) return value;
-      }
-      return null;
-    }
-
-    const username = getCookie("token");
-    setUsername(username);
-    console.log(username);
 
     setIsLoaded(true);
-  }, []);
+  }, [session, whichRole]);
 
   useEffect(() => {
     
@@ -207,7 +201,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
         setRole('artist')
       }
     }
-  },[artistName])
+  },[artistName, isLoggedIn, userName, idArtWork])
 
 
  function winner_modal(status) {
@@ -285,7 +279,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
     const data = {
       bid_amount,
-      name: userName,
+      name: session?.userName || session?.user?.name || userName,
       id_artwork: parseInt(idArtWork),
     };
 
@@ -442,8 +436,8 @@ async function forceEndAuction() {
         className="w-full sm:w-[60px] h-[42px] bg-[#4047A1] hover:bg-blue-700 !text-white rounded-r-lg font-semibold shadow transition-all"
         />
       </div>
-    </form> ) : (
-          <Popup stylish={2} />
+    </form>         ) : (
+          <Popup stylish={2} highest={highest} />
         ))
       )}
 

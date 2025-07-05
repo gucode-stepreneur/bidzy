@@ -6,9 +6,15 @@ export async function POST(request) {
     const body = await request.json();
     const { name, facebookId, phone } = body;
 
+    console.log("Received data:", { name, facebookId, phone });
+
     if (!name || !facebookId || !phone) {
+      console.log("Missing required fields:", { name: !!name, facebookId: !!facebookId, phone: !!phone });
       return new Response(
-        JSON.stringify({ error: "Name, Facebook ID, and phone are required" }),
+        JSON.stringify({ 
+          error: "Name, Facebook ID, and phone are required",
+          received: { name, facebookId, phone }
+        }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       );
     }

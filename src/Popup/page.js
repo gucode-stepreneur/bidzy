@@ -67,25 +67,30 @@ export const Popup = ({ stylish , highest }) => {
 
     setIsLoading(true);
     try {
+      const requestData = {
+        name: session.userName || session.user?.name,
+        facebookId: session.facebookId,
+        phone: phone
+      };
+      
+      console.log("Sending data to API:", requestData);
+      
       const response = await fetch("/api/save-user", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          name: session.userName,
-          facebookId: session.facebookId,
-          phone: phone
-        }),
+        body: JSON.stringify(requestData),
       });
       
       const data = await response.json();
       
-      if (data.success) {
+      if (response.ok && data.success) {
         closeModal();
         window.location.reload();
       } else {
-        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+        console.error("API Error:", data);
+        alert(`เกิดข้อผิดพลาด: ${data.error || 'ไม่ทราบสาเหตุ'}`);
       }
     } catch (error) {
       console.error("Error saving user:", error);
@@ -212,7 +217,7 @@ export const Popup = ({ stylish , highest }) => {
           {session?.user ? (
             <div className="text-center">
               <p className="text-green-600 font-semibold mb-4">
-                ยินดีต้อนรับ {session.userName || session.user.name}!
+                ยินดีต้อนรับ {session.userName || session.user?.name || 'ผู้ใช้'}!
               </p>
               <div className="text-gray-600 mb-4 text-sm">
                 <p><strong>Facebook ID:</strong> {session.facebookId || 'ไม่ระบุ'}</p>
