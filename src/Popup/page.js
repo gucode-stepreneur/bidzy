@@ -17,10 +17,10 @@ export const Popup = ({ stylish , highest }) => {
 
 
   useEffect(() => {
-    if (session?.user?.name) {
+    if (session?.user?.name && !isLoaded) {
       checkUser();
     }
-  }, [session]);
+  }, [session, isLoaded]);
 
   const checkUser = async () => {
     if (!session?.facebookId) return;
@@ -43,8 +43,9 @@ export const Popup = ({ stylish , highest }) => {
           setIsNewUser(true);
         } else {
           // ถ้ามี user และมีเบอร์โทรแล้ว ให้ผ่านไปเลย
+          setIsLoaded(true);
           closeModal();
-          window.location.reload();
+          // ไม่ต้อง reload แล้ว ให้ parent component จัดการเอง
         }
       } else {
         // ถ้าเป็น user ใหม่ ให้แสดงฟอร์มกรอกเบอร์โทร
@@ -86,8 +87,9 @@ export const Popup = ({ stylish , highest }) => {
       const data = await response.json();
       
       if (response.ok && data.success) {
+        setIsLoaded(true);
         closeModal();
-        window.location.reload();
+        // ไม่ต้อง reload แล้ว ให้ parent component จัดการเอง
       } else {
         console.error("API Error:", data);
         alert(`เกิดข้อผิดพลาด: ${data.error || 'ไม่ทราบสาเหตุ'}`);
@@ -122,11 +124,12 @@ export const Popup = ({ stylish , highest }) => {
       },
       body: JSON.stringify({ name }),
     })
-      .then((res) => res.json())
-      .then((data) => {
-         closeModal();
-        window.location.reload(); 
-      })
+          .then((res) => res.json())
+    .then((data) => {
+       setIsLoaded(true);
+       closeModal();
+       // ไม่ต้อง reload แล้ว ให้ parent component จัดการเอง
+    })
       .catch((err) => console.log(err));
   };
 
