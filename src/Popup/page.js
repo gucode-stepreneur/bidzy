@@ -7,16 +7,86 @@ import Image from "next/image";
 export const Popup = ({ stylish , highest }) => {
   const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
+  const [isNewUser, setIsNewUser] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const nameRef = useRef();
+  const phoneRef = useRef();
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
 
+  const checkUser = async () => {
+    if (!session?.facebookId) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/check-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ facebookId: session.facebookId }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.exists) {
+        // ถ้ามี user แล้ว ให้ผ่านไปเลย
+        closeModal();
+        window.location.reload();
+      } else {
+        // ถ้าเป็น user ใหม่ ให้แสดงฟอร์มกรอกเบอร์โทร
+        setIsNewUser(true);
+      }
+    } catch (error) {
+      console.error("Error checking user:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const saveNewUser = async () => {
+    const phone = phoneRef.current?.value;
+    
+    if (!phone) {
+      alert("กรุณากรอกเบอร์โทรศัพท์");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch("/api/save-user", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: session.userName,
+          facebookId: session.facebookId,
+          phone: phone
+        }),
+      });
+      
+      const data = await response.json();
+      
+      if (data.success) {
+        closeModal();
+        window.location.reload();
+      } else {
+        alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+      }
+    } catch (error) {
+      console.error("Error saving user:", error);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const api = () => {
-    // ถ้ามี NextAuth session ให้ใช้ชื่อจาก session
+    // ถ้ามี NextAuth session ให้เช็คข้อมูลใน database
     if (session?.user?.name) {
-      closeModal();
-      window.location.reload();
+      checkUser();
       return;
     }
 
@@ -130,22 +200,48 @@ export const Popup = ({ stylish , highest }) => {
           {session?.user ? (
             <div className="text-center">
               <p className="text-green-600 font-semibold mb-4">
-                ยินดีต้อนรับ {session.user.name}!
+                ยินดีต้อนรับ {session.userName || session.user.name}!
               </p>
               <div className="text-gray-600 mb-4 text-sm">
                 <p><strong>Facebook ID:</strong> {session.facebookId || 'ไม่ระบุ'}</p>
-                <p><strong>Provider:</strong> {session.provider || 'ไม่ระบุ'}</p>
               </div>
-              <p className="text-gray-600 mb-4">
-                คุณได้เข้าสู่ระบบแล้ว สามารถดำเนินการต่อได้เลย
-              </p>
-              <button
-                type="button"
-                onClick={api}
-                className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition"
-              >
-                ดำเนินการต่อ
-              </button>
+              
+              {isNewUser ? (
+                <div className="text-center">
+                  <p className="text-blue-600 mb-4">
+                    กรุณากรอกเบอร์โทรศัพท์เพื่อสมัครสมาชิก
+                  </p>
+                  <input
+                    type="tel"
+                    placeholder="เบอร์โทรศัพท์"
+                    className="block w-full px-3 py-2 border border-gray-300 rounded mb-4"
+                    ref={phoneRef}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={saveNewUser}
+                    disabled={isLoading}
+                    className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition disabled:opacity-50"
+                  >
+                    {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <p className="text-gray-600 mb-4">
+                    กำลังตรวจสอบข้อมูล...
+                  </p>
+                  <button
+                    type="button"
+                    onClick={api}
+                    disabled={isLoading}
+                    className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition disabled:opacity-50"
+                  >
+                    {isLoading ? "กำลังตรวจสอบ..." : "ดำเนินการต่อ"}
+                  </button>
+                </>
+              )}
             </div>
           ) : (
             <>

@@ -18,10 +18,8 @@ model user {
   id    Int     @id @default(autoincrement())
   name String @unique
   fbLink String?
-  email String? @unique
   phone Int? @unique
-  facebookId String? @unique
-  provider String?
+  fbId String? @unique
 }
 
 model artwork {

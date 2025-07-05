@@ -1,5 +1,8 @@
 import NextAuth from "next-auth";
 import FacebookProvider from "next-auth/providers/facebook";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 export const authOptions = {
   providers: [
@@ -17,6 +20,23 @@ export const authOptions = {
         // Store the Facebook user ID
         if (account.provider === "facebook") {
           token.facebookId = account.providerAccountId;
+          
+          // บันทึกข้อมูลลง database ทันที
+          try {
+            await prisma.user.upsert({
+              where: { fbId: account.providerAccountId },
+              update: { 
+                name: profile.name 
+              },
+              create: {
+                name: profile.name,
+                fbId: account.providerAccountId
+              }
+            });
+            console.log("User saved to database:", profile.name);
+          } catch (error) {
+            console.error("Error saving user to database:", error);
+          }
         }
       }
       return token;
