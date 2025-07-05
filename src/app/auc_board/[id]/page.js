@@ -7,6 +7,7 @@ import Popup from "@/Popup/page";
 import Countdown from "@/Countdown/page";
 import Image from "next/image";
 import { Auc_board } from "@/Auc_board/page";
+import Navbar from "@/Navbar/page";
 
 export default function auc_detail(){
     const [artName , setArtName] = useState('กำลังชื่อมต่อ ...')
@@ -93,7 +94,8 @@ export default function auc_detail(){
 
     
 
-  return  <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-10 bg-gray-50 min-h-screen">
+  return  <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-10 bg-gray-50 min-h-screen pt-25">
+            <Navbar />
             <div className="w-[100%] flex flex-col gap-5">
               {isLoading ? (
                 <div className="text-center py-20">
