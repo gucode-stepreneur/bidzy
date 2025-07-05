@@ -13,9 +13,14 @@ export async function POST(request) {
       );
     }
 
-    // บันทึกข้อมูลผู้ใช้ใหม่
-    const user = await prisma.user.create({
-      data: {
+    // บันทึกหรืออัพเดทข้อมูลผู้ใช้
+    const user = await prisma.user.upsert({
+      where: { fbId: facebookId },
+      update: { 
+        phone: parseInt(phone),
+        name: name // อัพเดทชื่อด้วย
+      },
+      create: {
         name,
         fbId: facebookId,
         phone: parseInt(phone)

@@ -31,9 +31,14 @@ export const Popup = ({ stylish , highest }) => {
       const data = await response.json();
       
       if (data.exists) {
-        // ถ้ามี user แล้ว ให้ผ่านไปเลย
-        closeModal();
-        window.location.reload();
+        if (data.needsPhoneNumber) {
+          // ถ้ามี user แต่ไม่มีเบอร์โทร ให้แสดงฟอร์มกรอกเบอร์โทร
+          setIsNewUser(true);
+        } else {
+          // ถ้ามี user และมีเบอร์โทรแล้ว ให้ผ่านไปเลย
+          closeModal();
+          window.location.reload();
+        }
       } else {
         // ถ้าเป็น user ใหม่ ให้แสดงฟอร์มกรอกเบอร์โทร
         setIsNewUser(true);
@@ -209,7 +214,7 @@ export const Popup = ({ stylish , highest }) => {
               {isNewUser ? (
                 <div className="text-center">
                   <p className="text-blue-600 mb-4">
-                    กรุณากรอกเบอร์โทรศัพท์เพื่อสมัครสมาชิก
+                    กรุณากรอกเบอร์โทรศัพท์เพื่อดำเนินการต่อ
                   </p>
                   <input
                     type="tel"
