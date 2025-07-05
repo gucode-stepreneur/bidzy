@@ -1,7 +1,7 @@
 "use client";
 import FacebookBtn from "@/components/FacebookBtn/page"
 import { useSession } from "next-auth/react"
-
+import { useEffect } from "react";
 import { useRef, useState } from "react";
 import Image from "next/image";
 export const Popup = ({ stylish , highest }) => {
@@ -14,6 +14,13 @@ export const Popup = ({ stylish , highest }) => {
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => setIsOpen(false);
+
+
+  useEffect(() => {
+    if (session?.user?.name) {
+      checkUser();
+    }
+  }, [session]);
 
   const checkUser = async () => {
     if (!session?.facebookId) return;
