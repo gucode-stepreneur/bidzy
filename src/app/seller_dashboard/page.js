@@ -22,23 +22,20 @@ const Dashboard = () => {
 
   
   useEffect(() => {
-    const cookies = document.cookie;
-    function getCookie(name) {
-      const cookieArray = cookies.split('; ');
-      for (const cookie of cookieArray) {
-        const [key, value] = cookie.split('=');
-        if (key === name) return value;
-      }
-      return null;
+    setRole(whichRole)
+    
+    // ใช้ NextAuth session แทน cookie
+    if (session?.user?.name) {
+      setIsLoggedIn(true);
+      setUsername(session.user.name);
+      console.log("NextAuth user:", session.user.name);
+    } else {
+      setIsLoggedIn(false);
+      setUsername("");
     }
 
-    const username = getCookie("token");
-    if (username) {
-      setUsername(username);
-      setIsLoggedIn(true);
-    }
     setIsLoaded(true);
-  }, []);
+  }, [session, whichRole]);
 
   useEffect(() => {
   if (userName !== "no name for now") {

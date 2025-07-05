@@ -22,28 +22,21 @@ const page = () => {
    const [link , setLink] = useState('')
    const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    const cookies = document.cookie;
-    console.log(cookies);
-    if (cookies.includes("token=")) {
+   useEffect(() => {
+    setRole(whichRole)
+    
+    // ใช้ NextAuth session แทน cookie
+    if (session?.user?.name) {
       setIsLoggedIn(true);
+      setUsername(session.user.name);
+      console.log("NextAuth user:", session.user.name);
+    } else {
+      setIsLoggedIn(false);
+      setUsername("");
     }
-
-    function getCookie(name) {
-      const cookieArray = cookies.split('; ');
-      for (const cookie of cookieArray) {
-        const [key, value] = cookie.split('=');
-        if (key === name) return value;
-      }
-      return null;
-    }
-
-    const username = getCookie("token");
-    setUsername(username);
-    console.log(username);
 
     setIsLoaded(true);
-  }, []);
+  }, [session, whichRole]);
 
   
 

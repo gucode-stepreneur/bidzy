@@ -9,6 +9,7 @@ export const Popup = ({ stylish , highest }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isNewUser, setIsNewUser] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
   const nameRef = useRef();
   const phoneRef = useRef();
 
