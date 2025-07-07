@@ -26,11 +26,11 @@ cron.schedule("*/1 * * * *", async () => {
       select: { id: true },
     });
     for (const art of endedArtworks) {
-      // เรียก noti-end
-      await fetch(`https://bidzy-mini-mvp-env.up.railway.app/api/noti-end`, {
+      const link = `https://bidzy-mini-mvp-env.up.railway.app/auc_board/${art.id}`;
+        await fetch(`https://bidzy-mini-mvp-env.up.railway.app/api/noti-end`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id_artwork: art.id }),
+        body: JSON.stringify({ id_artwork: art.id, link: link }),
       });
       console.log(`[CRON] Triggered noti-end for artwork`, art.id);
     }
