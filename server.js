@@ -1,6 +1,10 @@
 import { createServer } from "node:http";
 import next from "next";
 import { Server } from "socket.io";
+import cron from "node-cron";
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
 
 const dev = process.env.NODE_ENV !== "production";
 const hostname = "localhost";
@@ -8,6 +12,32 @@ const port = 3000;
 // when using middleware `hostname` and `port` must be provided below
 const app = next({ dev, hostname, port });
 const handler = app.getRequestHandler();
+
+// CRON JOB: ตรวจสอบงานประมูลที่จบแล้วแต่ยังไม่แจ้งเตือน
+cron.schedule("*/1 * * * *", async () => {
+  try {
+    const now = new Date();
+    // ดึงงานที่จบแล้วและยังไม่แจ้งเตือน
+    const endedArtworks = await prisma.artwork.findMany({
+      where: {
+        end_at: { lt: now },
+        notified: false,
+      },
+      select: { id: true },
+    });
+    for (const art of endedArtworks) {
+      // เรียก noti-end
+      await fetch(`https://bidzy-mini-mvp-env.up.railway.app/api/noti-end`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id_artwork: art.id }),
+      });
+      console.log(`[CRON] Triggered noti-end for artwork`, art.id);
+    }
+  } catch (err) {
+    console.error("[CRON] Error in noti-end trigger:", err);
+  }
+});
 
 app.prepare().then(() => {
   const httpServer = createServer(handler);
