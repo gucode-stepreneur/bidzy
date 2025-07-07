@@ -55,7 +55,7 @@ export default function Countdown({ deadline, onExpire , stylish }) {
     (
     <p className='!text-[#ff002f] text-lg font-bold'>
       เหลือเวลา 
-      <span className='block  !text-[#ff002f] text-3xl font-bold'>{timeLeft.days} <span className='!text-[#ff002f] text-lg'>วัน</span>  {timeLeft.hours} <span className='!text-[#ff002f] text-lg'>ชม</span>  {timeLeft.minutes} <span className='!text-[#ff002f] text-lg'>นาที</span>  {timeLeft.seconds} <span className='!text-[#ff002f] text-lg'>วิ</span></span> 
+      <span className='block  !text-[#ff002f] text-sm font-bold'>{timeLeft.days} <span className='!text-[#ff002f] text-lg'>วัน</span>  {timeLeft.hours} <span className='!text-[#ff002f] text-lg'>ชม</span>  {timeLeft.minutes} <span className='!text-[#ff002f] text-lg'>นาที</span>  {timeLeft.seconds} <span className='!text-[#ff002f] text-lg'>วิ</span></span> 
     </p>
     )
   }
