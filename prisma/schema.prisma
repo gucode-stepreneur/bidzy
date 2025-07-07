@@ -33,7 +33,7 @@ model artwork {
     description String
     end_at DateTime
     start_at DateTime @default(now())
-
+    notified  Boolean  @default(false)
     bidHistories bidHistory[] @relation("ArtWorkToBid")
 }
 

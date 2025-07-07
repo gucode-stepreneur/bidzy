@@ -268,6 +268,13 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
  useEffect(() => {
   if (deadlineExpired == true) {
+    fetch("/api/noti_end", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ id_artwork: parseInt(idArtWork)  }),
+    });
     end_auction();
     onDeadlineExpired?.(); // ⬅️ แจ้งแม่ว่าหมดเวลาแล้ว
   }
