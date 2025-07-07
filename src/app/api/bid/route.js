@@ -3,18 +3,6 @@ const prisma = new PrismaClient();
 import twilio from 'twilio';
 
 export async function POST(request) {
-  function formatPhone(phone) {
-    let str = phone.toString();
-  
-    if (str.startsWith("+")) {
-      return str; // เบอร์มี +66 อยู่แล้ว
-    }
-    if (str.startsWith("0")) {
-      return "+66" + str.slice(1); // ลบ 0 นำหน้า แล้วเติม +66
-    }
-    // กรณีไม่มี 0 หรือ + นำหน้า เช่น 808285042
-    return "+66" + str;
-  }
   
 const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
   try {
@@ -75,7 +63,7 @@ const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
       await client.messages.create({
         body: artistMessage,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: formatPhone(artist.phone),
+        to: `+660${artist.phone}`,
       });
     }
     
@@ -84,7 +72,7 @@ const client = twilio(process.env.TWILIO_SID, process.env.TWILIO_AUTH_TOKEN);
       await client.messages.create({
         body: bidderMessage,
         from: process.env.TWILIO_PHONE_NUMBER,
-        to: formatPhone(phone),
+        to: `+660${phone}`,
       });
     }
 
