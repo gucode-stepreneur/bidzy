@@ -6,43 +6,47 @@ export default function Countdown({ deadline, onExpire , stylish }) {
   const [alreadyExpired, setAlreadyExpired] = useState(false);
 
   useEffect(() => {
-  const targetTime = new Date(deadline).getTime();
-  const now = Date.now();
-
-  if (targetTime <= now && !alreadyExpired) {
-    setTimeLeft({ expired: true });
-    setAlreadyExpired(true);
-    onExpire?.(true);
-    return;
-  }
-
-  const timer = setInterval(() => {
+    // แปลง UTC เป็น Local Time (UTC+7 สำหรับประเทศไทย)
+    const targetTime = new Date(deadline);
+    
+    // ถ้า deadline เป็น UTC ให้แปลงเป็น Local Time (+7 hours)
+    // หรือถ้าต้องการให้แม่นยำขึ้น ให้ส่ง timezone จาก backend มา
+    const localTargetTime = new Date(targetTime.getTime() + (7 * 60 * 60 * 1000));
+    
+    const targetTimeMs = localTargetTime.getTime();
     const now = Date.now();
-    const distance = targetTime - now;
 
-    if (distance <= 0 && !alreadyExpired) {
-      clearInterval(timer);
+    if (targetTimeMs <= now && !alreadyExpired) {
       setTimeLeft({ expired: true });
       setAlreadyExpired(true);
       onExpire?.(true);
       return;
     }
 
-    if (!alreadyExpired) {
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    const timer = setInterval(() => {
+      const now = Date.now();
+      const distance = targetTimeMs - now;
 
-      setTimeLeft({ days, hours, minutes, seconds });
-    }
-  }, 1000);
+      if (distance <= 0 && !alreadyExpired) {
+        clearInterval(timer);
+        setTimeLeft({ expired: true });
+        setAlreadyExpired(true);
+        onExpire?.(true);
+        return;
+      }
 
-  return () => clearInterval(timer);
-}, [deadline]);
+      if (!alreadyExpired) {
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
- 
+        setTimeLeft({ days, hours, minutes, seconds });
+      }
+    }, 1000);
 
+    return () => clearInterval(timer);
+  }, [deadline]);
 
   if (timeLeft.expired) return "หมดเวลาแล้ว";
 
