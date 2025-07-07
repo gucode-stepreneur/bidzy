@@ -301,6 +301,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
       bid_amount,
       name: session?.userName || session?.user?.name || userName,
       id_artwork: parseInt(idArtWork),
+      link:`${window.location.origin}/auc_board/${idArt}`,
     };
 
     fetch("/api/bid", {
