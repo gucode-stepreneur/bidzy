@@ -273,7 +273,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ id_artwork: parseInt(idArtWork)  }),
+      body: JSON.stringify({ id_artwork: parseInt(idArtWork) , link: `${window.location.origin}/auc_board/${idArt}`  }),
     });
     end_auction();
     onDeadlineExpired?.(); // ⬅️ แจ้งแม่ว่าหมดเวลาแล้ว
