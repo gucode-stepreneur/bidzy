@@ -6,9 +6,13 @@ export default function Countdown({ deadline, onExpire , stylish }) {
   const [alreadyExpired, setAlreadyExpired] = useState(false);
 
   useEffect(() => {
+    // แปลง UTC กลับเป็น Local Time (ลบ 7 ชั่วโมง)
     const targetTime = new Date(deadline);
-    // ถ้า deadline มี Z หรือ offset → new Date จะ auto แปลงเป็น local ให้แล้ว
-    const targetTimeMs = targetTime.getTime();
+    
+    // ถ้า deadline ใน DB เป็น UTC ที่ถูกบวก +7 ไปแล้ว ให้ลบ 7 ชั่วโมงออก
+    const localTargetTime = new Date(targetTime.getTime() - (7 * 60 * 60 * 1000));
+    
+    const targetTimeMs = localTargetTime.getTime();
     const now = Date.now();
 
     if (targetTimeMs <= now && !alreadyExpired) {

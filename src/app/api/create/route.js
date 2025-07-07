@@ -41,12 +41,6 @@ export async function POST(request) {
       ).end(buffer);
     });
 
-    // แปลง Local Time เป็น UTC ก่อนบันทึก
-    // datetime-local input ส่งมาเป็น Local Time (เช่น "2025-07-08T09:47")
-    // ต้องแปลงเป็น UTC ก่อนบันทึกลงฐานข้อมูล
-    const localDateTime = new Date(end_at); // สร้าง Date object จาก Local Time
-    const utcDateTime = new Date(localDateTime.getTime() - (localDateTime.getTimezoneOffset() * 60000));
-
     // บันทึกข้อมูลลงฐานข้อมูล
     const artwork = await prisma.artwork.create({
       data: {
@@ -57,7 +51,7 @@ export async function POST(request) {
         fee: parseInt(fee),
         description: description,
         path: cloudinaryResult.secure_url, // ใช้ URL จาก Cloudinary แทนชื่อไฟล์
-        end_at: utcDateTime
+        end_at: new Date(end_at)
       }
     });
 
