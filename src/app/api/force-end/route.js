@@ -28,7 +28,7 @@ export async function POST(req) {
     await prisma.artwork.update({
       where: { id: id_artwork },
       data: {
-        end_at: new Date(), // ให้หมดเวลาทันที
+        end_at: new Date().toISOString(), // ใช้ UTC string
       },
     });
 

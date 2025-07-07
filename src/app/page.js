@@ -65,6 +65,13 @@ const page = () => {
   const form = e.target;
   const formData = new FormData(form);
 
+  // แปลงเวลาท้องถิ่นเป็น UTC ก่อนส่ง
+  const localEndAt = formData.get("end_at");
+  if (localEndAt) {
+    const utcEndAt = new Date(localEndAt).toISOString();
+    formData.set("end_at", utcEndAt);
+  }
+
   try {
     const response = await fetch("/api/create", {
       method: "POST",

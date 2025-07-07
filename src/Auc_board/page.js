@@ -154,7 +154,8 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
       console.log("🔔 รับ event auction_ended จาก server แล้ว!", data);
       console.log("🎯 ข้อมูลที่ได้รับ:", data);
       setDeadlineExpired(true);
-      setEnd(new Date().toISOString());
+      // ไม่ต้อง override deadline ด้วยเวลาปัจจุบัน
+      // setEnd(new Date().toISOString());
       
       // แสดงข้อความตามข้อมูลที่ได้รับจาก server
       const message = data?.message || "การประมูลถูกหยุดโดยศิลปิน ระบบจะรีเฟรชหน้าให้อัตโนมัติ";
@@ -354,7 +355,8 @@ async function forceEndAuction() {
     if (response.ok) {
       console.log("✅ การประมูลถูกหยุดเรียบร้อยแล้ว");
       setDeadlineExpired(true);
-      setEnd(new Date().toISOString());
+      // ไม่ต้อง override deadline ด้วยเวลาปัจจุบัน
+      // setEnd(new Date().toISOString());
 
       // แจ้ง server ว่าหยุดประมูลแล้ว ให้ส่ง event ไปยังผู้ที่อยู่ในห้อง
       if (socket.connected) {

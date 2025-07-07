@@ -41,7 +41,7 @@ export async function POST(request) {
       ).end(buffer);
     });
 
-    // บันทึกข้อมูลลงฐานข้อมูล
+    // บันทึกข้อมูลลงฐานข้อมูล (end_at เป็น UTC string แล้ว)
     const artwork = await prisma.artwork.create({
       data: {
         name: name,
@@ -51,7 +51,7 @@ export async function POST(request) {
         fee: parseInt(fee),
         description: description,
         path: cloudinaryResult.secure_url, // ใช้ URL จาก Cloudinary แทนชื่อไฟล์
-        end_at: new Date(end_at)
+        end_at: end_at // เก็บ UTC string ตรง ๆ ไม่ต้องแปลง
       }
     });
 

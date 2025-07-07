@@ -77,7 +77,7 @@ const Dashboard = () => {
 
   function check_end(endTimeString) {
     const now = new Date();
-    const endTime = new Date(endTimeString);
+    const endTime = new Date(endTimeString); // endTimeString เป็น UTC string แล้ว
     return now > endTime; // true = หมดเวลาแล้ว, false = ยังไม่หมด
   }
 

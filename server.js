@@ -17,10 +17,10 @@ const handler = app.getRequestHandler();
 cron.schedule("*/1 * * * *", async () => {
   try {
     const now = new Date();
-    // ดึงงานที่จบแล้วและยังไม่แจ้งเตือน
+    // ดึงงานที่จบแล้วและยังไม่แจ้งเตือน (end_at เป็น UTC string แล้ว)
     const endedArtworks = await prisma.artwork.findMany({
       where: {
-        end_at: { lt: now },
+        end_at: { lt: now.toISOString() }, // ใช้ UTC string เปรียบเทียบ
         notified: false,
       },
       select: { id: true },
