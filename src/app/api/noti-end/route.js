@@ -6,7 +6,6 @@ export async function POST(request) {
     const data = await request.json();
     const { id_artwork, link } = data;
 
-    // Input validation
     if (!id_artwork) {
       return new Response(JSON.stringify({ error: "Missing artwork ID" }), {
         status: 400,
@@ -14,50 +13,61 @@ export async function POST(request) {
       });
     }
 
-    // Check if artwork exists and get notified status
-    const artwork = await prisma.artwork.findUnique({
-      where: { id: id_artwork },
-      select: { 
-        name: true,
-        art_name: true,
+    // พยายามตั้ง notified = true ถ้ายังไม่เคยส่ง (notified = false)
+    const updateResult = await prisma.artwork.updateMany({
+      where: {
+        id: id_artwork,
+        notified: false,
+      },
+      data: {
         notified: true,
       },
     });
 
-    if (!artwork) {
-      return new Response(JSON.stringify({ error: "Artwork not found" }), {
-        status: 404,
-        headers: { "Content-Type": "application/json" },
+    if (updateResult.count === 0) {
+      // มีคนอัปเดตไปก่อนหน้าแล้ว (แจ้งเตือนแล้ว)
+      const existing = await prisma.artwork.findUnique({
+        where: { id: id_artwork },
+        select: {
+          name: true,
+          art_name: true,
+        },
       });
-    }
 
-    // If already notified, do not send again
-    if (artwork.notified) {
       return new Response(JSON.stringify({
         success: true,
         message: "Already notified",
-        artwork: artwork.art_name,
-        artist: artwork.name,
+        artwork: existing?.art_name,
+        artist: existing?.name,
         notified: true
       }), {
         headers: { "Content-Type": "application/json" },
       });
     }
 
-    // Get all unique bidders for this artwork
+    // ดึงข้อมูล artwork
+    const artwork = await prisma.artwork.findUnique({
+      where: { id: id_artwork },
+      select: {
+        name: true,
+        art_name: true,
+      },
+    });
+
+    // ดึงรายชื่อผู้ประมูลทั้งหมด
     const allBidders = await prisma.bidHistory.findMany({
-      where: { id_artwork: id_artwork },
+      where: { id_artwork },
       select: { bidder_name: true },
       distinct: ['bidder_name'],
     });
 
-    // Find artist phone number
+    // ดึงเบอร์โทรศิลปิน
     const artist = await prisma.user.findUnique({
       where: { name: artwork.name },
       select: { phone: true },
     });
 
-    // Get all bidder phone numbers
+    // ดึงเบอร์โทรผู้ประมูล
     const bidderNames = allBidders.map(b => b.bidder_name);
     const matchedUsers = await prisma.user.findMany({
       where: {
@@ -69,11 +79,10 @@ export async function POST(request) {
 
     const phoneNumbers = matchedUsers.map(u => u.phone);
 
-    // Prepare SMS messages
+    // เตรียมข้อความ SMS
     const artistMessage = `สวัสดีครับ คุณ${artwork.name} การประมูลงานศิลปะ "${artwork.art_name}" ได้สิ้นสุดแล้ว ลิงค์ ${link || 'N/A'}`;
     const bidderMessage = `การประมูลงานศิลปะ "${artwork.art_name}" ได้สิ้นสุดแล้ว ลิงค์ ${link || 'N/A'}`;
 
-    // SMS API configuration
     const auth = Buffer.from(
       `${process.env.THAIBULKSMS_API_KEY}:${process.env.THAIBULKSMS_API_SECRET}`
     ).toString('base64');
@@ -97,8 +106,8 @@ export async function POST(request) {
       bidders: false,
       totalSent: 0
     };
-    
-    // Send SMS to artist
+
+    // ส่ง SMS ถึงศิลปิน
     if (artist?.phone) {
       try {
         const params = new URLSearchParams();
@@ -106,7 +115,7 @@ export async function POST(request) {
         params.set('message', artistMessage);
         params.set('sender', 'AVIATE');
         params.set('shorten_url', 'true');
-      
+
         const response = await fetch('https://api-v2.thaibulksms.com/sms', {
           method: 'POST',
           headers,
@@ -121,8 +130,8 @@ export async function POST(request) {
         console.error('Failed to send SMS to artist:', smsError);
       }
     }
-    
-    // Send SMS to all bidders
+
+    // ส่ง SMS ถึงผู้ประมูล
     if (phoneNumbers.length > 0) {
       try {
         const allPhones = phoneNumbers.map(p => formatPhone(p)).join(',');
@@ -131,7 +140,7 @@ export async function POST(request) {
         params.set('message', bidderMessage);
         params.set('sender', 'AVIATE');
         params.set('shorten_url', 'true');
-      
+
         const response = await fetch('https://api-v2.thaibulksms.com/sms', {
           method: 'POST',
           headers,
@@ -146,12 +155,6 @@ export async function POST(request) {
         console.error('Failed to send SMS to bidders:', smsError);
       }
     }
-
-    // Mark as notified
-    await prisma.artwork.update({
-      where: { id: id_artwork },
-      data: { notified: true },
-    });
 
     return new Response(JSON.stringify({
       success: true,
@@ -174,4 +177,4 @@ export async function POST(request) {
   } finally {
     await prisma.$disconnect();
   }
-} 
+}
