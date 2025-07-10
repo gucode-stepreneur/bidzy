@@ -25,7 +25,6 @@ export async function POST(request) {
    })
   }
 
-  // Set cookie (ชื่อว่า "token" เก็บชื่อ user)
   cookies().set('token', user.name, {
     path: '/',
     maxAge: 60 * 60 * 24, // 1 วัน

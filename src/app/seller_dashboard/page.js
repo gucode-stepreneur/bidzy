@@ -1,13 +1,11 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { useSession } from "next-auth/react";
 import Image from 'next/image';
 import Countdown from '@/Countdown/page';
 import Navbar from '@/Navbar/page';
 
 const Dashboard = () => {
-  const { data: session, status } = useSession();
   
   const [skip, setSkip] = useState(0);    // เก็บจำนวนที่ข้ามไปแล้ว
   const take = 10;                        // โหลดทีละ 10 รายการ
@@ -43,35 +41,44 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-  if (userName !== "no name for now") {
-    loadArtworks(true);
-  }
-}, [userName]);
+    if (userName && userName !== "no name for now" && userName !== "") {
+      loadArtworks(true);
+    }
+  }, [userName]);
 
   const loadArtworks = (reset = false) => {
-  const currentSkip = reset ? 0 : skip;
-  fetch('/api/findwork_dashboard', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ artist_name: userName, skip: currentSkip, take }),
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (reset) {
-      setArtWork(data.artworks || []);
-      setSkip(take);
-    } else {
-      setArtWork(prev => [...prev, ...(data.artworks || [])]);
-      setSkip(prev => prev + take);
-    }
-    if (!data.artworks || data.artworks.length < take) {
-      setHasMore(false);
-    } else {
-      setHasMore(true);
-    }
-  })
-  .catch(error => console.error("Error fetching artwork:", error));
-}
+    const currentSkip = reset ? 0 : skip;
+    fetch('/api/findwork_dashboard', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ artist_name: userName, skip: currentSkip, take }),
+    })
+      .then(response => response.json())
+      .then(data => {
+        if (!data || !Array.isArray(data.artworks)) {
+          setArtWork([]);
+          setHasMore(false);
+          return;
+        }
+        if (reset) {
+          setArtWork(data.artworks);
+          setSkip(take);
+        } else {
+          setArtWork(prev => [...prev, ...data.artworks]);
+          setSkip(prev => prev + take);
+        }
+        if (data.artworks.length < take) {
+          setHasMore(false);
+        } else {
+          setHasMore(true);
+        }
+      })
+      .catch(error => {
+        setArtWork([]);
+        setHasMore(false);
+        console.error("Error fetching artwork:", error);
+      });
+  };
 
 
   function link_work (idArtwork) {
@@ -142,7 +149,7 @@ const Dashboard = () => {
         </div>
 
         {/* Content */}
-        {artWork.length === 0 ? (
+        {Array.isArray(artWork) && artWork.length === 0 ? (
           <div className="text-center py-20">
             <div className="w-32 h-32 mx-auto mb-8 bg-gradient-to-tr from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
               <svg className="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -159,7 +166,7 @@ const Dashboard = () => {
           </div>
         ) : (
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {artWork.map((item, index) => {
+            {Array.isArray(artWork) && artWork.map((item, index) => {
               const isExpired = check_end(item.end_at);
               const link_icon = isExpired ? '/icon/link_gray.png' : '/icon/link.png';
               const cardColor = isExpired ? '#A0A0A0' : '#4047A1';
