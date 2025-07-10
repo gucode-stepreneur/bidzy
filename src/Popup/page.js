@@ -38,6 +38,8 @@ export const Popup = ({ stylish , highest }) => {
 
   const data = await response.json();
   if (data.success) {
+    // Set cookie ฝั่ง client ด้วย JS เพื่อความแน่นอน
+    document.cookie = `token=${encodeURIComponent(data.user.name)}; path=/; max-age=${60*60*24}`;
     window.location.reload();
   } else {
     console.error('Login failed:', data.message);
