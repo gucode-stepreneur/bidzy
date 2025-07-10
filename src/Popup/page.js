@@ -27,7 +27,24 @@ export const Popup = ({ stylish , highest }) => {
     }
   }, []);
 
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const username = formData.get('username');
+    const password = formData.get('password');
+    const phone = formData.get('phone');
+    const response = await fetch('/api/signin', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ username, password, phone }),
+    });
+    const data = await response.json();
+    if (data.success) {
+      window.location.reload();
+    }
+  };
 
   const handleLogout = async () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -113,7 +130,7 @@ export const Popup = ({ stylish , highest }) => {
 
         <div className="p-4">
           {userName == null && (
-            <form>
+            <form onSubmit={handleSubmit}>
               <input type="text" name="username" placeholder="Username" />
               <input type="password" name="password" placeholder="Password" />
               <input type="text" name="phone" placeholder="Phone" />
