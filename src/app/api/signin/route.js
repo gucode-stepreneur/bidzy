@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
-import { prisma } from '@/lib/prisma'; // ปรับ path ตามของคุณ
+import { PrismaClient } from '@prisma/client';
+const prisma = new PrismaClient();
 
 export async function POST(request) {
   const body = await request.json();
@@ -19,7 +20,7 @@ export async function POST(request) {
     data: {
       name: username,
       pass: pass,
-      phone: body.phone,
+      phone: phone,
     },
    })
   }
