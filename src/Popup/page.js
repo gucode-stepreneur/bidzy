@@ -6,9 +6,8 @@ import Image from "next/image";
 export const Popup = ({ stylish , highest }) => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const [forcePhoneCheck, setForcePhoneCheck] = useState(false);
-  const phoneRef = useRef();
   const [userName, setUsername] = useState(null);
+
   const openModal = () => setIsOpen(true);
   const closeModal = () => {
     setIsOpen(false);
@@ -27,24 +26,24 @@ export const Popup = ({ stylish , highest }) => {
     }
   }, []);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const username = formData.get('username');
-    const password = formData.get('password');
-    const phone = formData.get('phone');
-    const response = await fetch('/api/signin', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ username, password, phone }),
-    });
-    const data = await response.json();
-    if (data.success) {
-      window.location.reload();
-    }
-  };
+  const handleSubmit = async () => {
+  const username = document.getElementById('username-input').value;
+  const phone = document.getElementById('phone-input').value;
+
+  const response = await fetch('/api/signin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, phone }),
+  });
+
+  const data = await response.json();
+  if (data.success) {
+    window.location.reload();
+  } else {
+    console.error('Login failed:', data.message);
+  }
+};
+
 
   const handleLogout = async () => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -129,15 +128,29 @@ export const Popup = ({ stylish , highest }) => {
      
 
         <div className="p-4">
-          {userName == null && (
-            <form onSubmit={handleSubmit}>
-              <input type="text" name="username" placeholder="Username" />
-              <input type="password" name="password" placeholder="Password" />
-              <input type="text" name="phone" placeholder="Phone" />
-              <button type="submit">Login</button>
-              <button onClick={closeModal}>ยกเลิก</button>
-            </form>
+         {userName == null && (
+            <div>
+              <div className="flex flex-col gap-2">
+                <input
+                  type="text"
+                  name="username"
+                  placeholder="Username"
+                  id="username-input"
+                />
+                <input
+                  type="text"
+                  name="phone"
+                  placeholder="Phone"
+                  id="phone-input"
+                />
+                <div className="flex gap-2 mt-2">
+                  <button type="button" onClick={handleSubmit}>Login</button>
+                  <button type="button" onClick={closeModal}>ยกเลิก</button>
+                </div>
+              </div>
+            </div>
           )}
+
         </div>
       </div>
     </div>

@@ -4,31 +4,29 @@ const prisma = new PrismaClient();
 
 export async function POST(request) {
   const body = await request.json();
-  const username = body.name;
-  const pass = body.pass;
-  const phone = body.phone;
+  const username = body.username;
+  const phone = parseInt(body.phone);
+  
 
-  const user = await prisma.user.findFirst({
-    where: {
-      name: username,
-      pass: pass, // plain-text password
-    },
-  });
+  try {
+    let user = await prisma.user.findFirst({
+      where: { name: username, phone },
+    });
 
-  if (!user) {
-   const create = await prisma.user.create({
-    data: {
-      name: username,
-      pass: pass,
-      phone: phone,
-    },
-   })
+    if (!user) {
+      user = await prisma.user.create({
+        data: { name: username, phone },
+      });
+    }
+
+    cookies().set('token', user.name, {
+      path: '/',
+      maxAge: 60 * 60 * 24,
+    });
+
+    return Response.json({ success: true, message: 'Login success', user });
+  } catch (err) {
+    console.error(err);
+    return Response.json({ success: false, message: 'Internal Server Error' }, { status: 500 });
   }
-
-  cookies().set('token', user.name, {
-    path: '/',
-    maxAge: 60 * 60 * 24, // 1 วัน
-  });
-
-  return Response.json({ message: 'Login success', user });
 }

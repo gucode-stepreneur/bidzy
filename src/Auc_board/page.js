@@ -306,7 +306,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
     const data = {
       bid_amount,
-      name: session?.userName || session?.user?.name || userName || "unknown",
+      name: userName || "unknown",
       id_artwork: parseInt(idArtWork),
       link:`${window.location.origin}/auc_board/${idArt}`,
     };
@@ -441,31 +441,7 @@ async function forceEndAuction() {
         </div>
         
         
-      ) : role === "bidder" && (
-        <form
-          onSubmit={submitBid}
-          className="flex flex-col  items-start justify-center w-[100%] self-baseline  h-full mt-7"
-        >
-          <div className="text-center text-xl text-green-600 ml-5">
-            <span className="text-lg ">บิดสูงสุด :</span> <span className="text-black font-bold">{highest}</span><span> บาท</span>
-          </div>
-          <div className="flex flex-row w-[100%] p-5 pt-2">
-            <input
-            type="number"
-            name="bid_amount"
-            required
-            placeholder="จำนวนบิด"
-            className="px-4 py-2 w-full border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
-            />
-            <input
-            type="submit"
-            value="บิด"
-            className="w-full sm:w-[60px] h-[42px] bg-[#4047A1] hover:bg-blue-700 !text-white rounded-r-lg font-semibold shadow transition-all"
-            />
-          </div>
-        </form>
-      )}
-        {/*  role === "bidder" && isLoggedIn ? (
+      ) : role === "bidder" && isLoggedIn ? (
           <form
             onSubmit={submitBid}
             className="flex flex-col  items-start justify-center w-[100%] self-baseline  h-full mt-7"
@@ -491,7 +467,8 @@ async function forceEndAuction() {
         ) : role === "bidder" && !isLoggedIn ? (
           <Popup stylish={2} highest={highest} />
         ) : null
-      )} */}
+        }
+      
 
      
        
@@ -588,9 +565,9 @@ async function forceEndAuction() {
         }
       </p>
      {(modalType === "winner" || modalType === "artist") && (
-        <button className="w-max h-max px-4 py-2 bg-[#4047A1] !text-white rounded-md">
-          {modalType === "winner" ? "ติดต่อศิลปิน" : "ติดต่อผู้ชนะ"}
-        </button>
+        <div className="w-full h-max px-4 py-2 bg-[#4047A1] !text-white rounded-md text-center">
+          {modalType === "winner" ? `ชื่อเฟสบุ๊คศิลปิน : ${artistName}` : `ชื่อเฟสบุ๊คผู้ชนะ : ${winnerName}`}
+        </div>
       )}
 
     </div>

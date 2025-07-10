@@ -51,7 +51,7 @@ const Navbar = () => {
                             <span className='!text-[#4047A1] font-bold hidden md:block'>เริ่มงานประมูลใหม่</span>
                             <span>
                                 <div>
-                                    <Image className='object-contain' src="/icon/play_nav.png" width={20} height={20} />
+                                    <Image className='object-contain' src="/icon/play_nav.png" width={20} height={20} alt='play' />
                                 </div>
                             </span>
                         </div>
@@ -61,7 +61,7 @@ const Navbar = () => {
                             <span className='!text-[#4047A1] font-bold hidden md:block'>การประมูลทั้งหมด</span>
                             <span>
                             <div>
-                                <Image className='object-contain' src="/icon/dashboard_nav.png" width={20} height={20} />
+                                <Image className='object-contain' src="/icon/dashboard_nav.png" width={20} height={20} alt='dash icon' />
                             </div>
                             </span>
                         </div>
