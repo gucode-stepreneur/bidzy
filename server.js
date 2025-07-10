@@ -26,7 +26,7 @@ cron.schedule("*/1 * * * *", async () => {
       select: { id: true },
     });
     for (const art of endedArtworks) {
-      const link = `https://bidzy-fbname-auth.onrender.com/${art.id}`;
+      const link = `https://bidzy-fbname-auth.onrender.com/auc_board/${art.id}`;
         await fetch(`https://bidzy-fbname-auth.onrender.com/api/noti-end`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
