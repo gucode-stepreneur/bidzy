@@ -121,37 +121,59 @@ export const Popup = ({ stylish , highest }) => {
 
       <div
         id="modal"
-        className={`z-[999999] fixed top-10 left-[50%] transform -translate-x-1/2 w-[50vw] h-[80vh] bg-white shadow-lg ${
+        className={`z-[999999] fixed flex items-center justify-center top-0 left-[50%] transform -translate-x-1/2 w-[100vw] h-[100vh] bg-black/90 shadow-lg ${
           isOpen ? "block" : "hidden"
         }`}
       >
      
 
-        <div className="p-4">
-         {userName == null && (
-            <div>
-              <div className="flex flex-col gap-2">
-                <input
-                  type="text"
-                  name="username"
-                  placeholder="Username"
-                  id="username-input"
-                />
-                <input
-                  type="text"
-                  name="phone"
-                  placeholder="Phone"
-                  id="phone-input"
-                />
-                <div className="flex gap-2 mt-2">
-                  <button type="button" onClick={handleSubmit}>Login</button>
-                  <button type="button" onClick={closeModal}>ยกเลิก</button>
-                </div>
-              </div>
-            </div>
-          )}
-
+       <div className="p-6 max-w-md w-full mx-auto bg-white rounded-lg shadow-md">
+  {userName == null && (
+    <div>
+      <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">ลงชื่อเข้าใช้</h2>
+      <div className="flex flex-col gap-4">
+        <label className="text-sm text-gray-600">
+          *ชื่อ facebook ต้องเป๊ะเท่านั้นนะครับ
+        </label>
+        <input
+          type="text"
+          name="username"
+          placeholder="ชื่อ facebook"
+          id="username-input"
+          className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+        />
+        <label className="text-sm text-gray-600">
+          *เบอร์โทร โปรดใส่ให้ถูกเพื่อรับการแจ้งเตือน
+        </label>
+        <input
+          type="text"
+          name="phone"
+          placeholder="Phone"
+          id="phone-input"
+          className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+        />
+        <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full sm:w-auto"
+          >
+            Login
+          </button>
+          <button
+            type="button"
+            onClick={closeModal}
+            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition w-full sm:w-auto"
+          >
+            ยกเลิก
+          </button>
         </div>
+      </div>
+    </div>
+  )}
+</div>
+
+
       </div>
     </div>
   );
