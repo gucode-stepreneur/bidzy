@@ -25,18 +25,22 @@ const Dashboard = () => {
 
   
   useEffect(() => {
-    // ใช้ NextAuth session แทน cookie
-    if (session?.user?.name) {
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match?.[2] || null;
+    };
+  
+    const token = getCookie('token');
+    if (token) {
+      console.log("ชื่อผู้ใช้จาก cookie:", token);
+      setUsername(token);
       setIsLoggedIn(true);
-      setUsername(session.user.name);
-      console.log("NextAuth user:", session.user.name);
-    } else {
+    }else{
       setIsLoggedIn(false);
       setUsername("");
     }
-
     setIsLoaded(true);
-  }, [session]);
+  }, []);
 
   useEffect(() => {
   if (userName !== "no name for now") {

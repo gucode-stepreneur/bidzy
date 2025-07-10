@@ -17,9 +17,9 @@ datasource db {
 model user {
   id    Int     @id @default(autoincrement())
   name String @unique
+  pass String?
   fbLink String?
   phone Int? @unique
-  fbId String? @unique
 }
 
 model artwork {

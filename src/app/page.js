@@ -3,13 +3,11 @@
 import Countdown from "@/Countdown/page";
 import { useEffect, useState } from "react";
 import Popup from "@/Popup/page";
-import { useSession } from "next-auth/react"
 import { Auc_board } from "@/Auc_board/page";
 import Image from "next/image";
 import Navbar from "@/Navbar/page";
 
 const page = () => {
-  const { data: session, status } = useSession();
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [idArt , setIdArt] = useState(null)
@@ -26,19 +24,22 @@ const page = () => {
    const [copied, setCopied] = useState(false);
 
    useEffect(() => {
-    
-    // ใช้ NextAuth session แทน cookie
-    if (session?.user?.name) {
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match?.[2] || null;
+    };
+  
+    const token = getCookie('token');
+    if (token) {
+      console.log("ชื่อผู้ใช้จาก cookie:", token);
+      setUsername(token);
       setIsLoggedIn(true);
-      setUsername(session.user.name);
-      console.log("NextAuth user:", session.user.name);
-    } else {
+    }else{
       setIsLoggedIn(false);
       setUsername("");
     }
-
     setIsLoaded(true);
-  }, [session]);
+  }, []);
 
   
 

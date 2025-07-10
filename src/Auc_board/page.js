@@ -3,13 +3,11 @@
 import { use, useEffect, useState } from "react";
 import { socket } from "@/socket";
 import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 import Popup from "@/Popup/page";
 import Countdown from "@/Countdown/page";
 import Image from "next/image";
 
 export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
-  const { data: session, status } = useSession();
 
   const [idArtWork , setIdArtWork] = useState(null)
   const [start_price , setStartPrice] = useState(0);
@@ -39,19 +37,27 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
   const [modalOpen , setModalOpen] = useState(false)
    const [link , setLink] = useState('')
    const [copied, setCopied] = useState(false);
+
+    
+
   useEffect(() => {
-    // ใช้ NextAuth session แทน cookie
-    if (session?.user?.name) {
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match?.[2] || null;
+    };
+  
+    const token = getCookie('token');
+    if (token) {
+      console.log("ชื่อผู้ใช้จาก cookie:", token);
+      setUsername(token);
       setIsLoggedIn(true);
-      setUsername(session.user.name);
-      console.log("NextAuth user:", session.user.name);
-    } else {
+      setIsLoaded(true);
+    }else{
       setIsLoggedIn(false);
       setUsername("");
     }
+  }, []);
 
-    setIsLoaded(true);
-  }, [session]);
 
   useEffect(() => {
     

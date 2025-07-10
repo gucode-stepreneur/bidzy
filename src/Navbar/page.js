@@ -9,24 +9,21 @@ const Navbar = () => {
   const [userName, setUsername] = useState("");
 
     const [showDropdown, setShowDropdown] = useState(false);
-      useEffect(() => {
-        const cookies = document.cookie;
-        function getCookie(name) {
-          const cookieArray = cookies.split('; ');
-          for (const cookie of cookieArray) {
-            const [key, value] = cookie.split('=');
-            if (key === name) return value;
-          }
-          return null;
-        }
+    useEffect(() => {
+      const getCookie = (name) => {
+        const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+        return match?.[2] || null;
+      };
     
-        const username = getCookie("token");
-        if (username) {
-          setUsername(username);
-          setIsLoggedIn(true);
-        }
+      const token = getCookie('token');
+      if (token) {
+        console.log("ชื่อผู้ใช้จาก cookie:", token);
+        setUsername(token);
+        setIsLoggedIn(true);
         setIsLoaded(true);
-      }, []);
+      }
+    }, []);
+  
   return (
           <nav className="fixed w-full left-0 top-0 bg-white/80 backdrop-blur-xl z-100 border-b border-blue-100/50 shadow-sm">
             <div className="max-w-7xl mx-auto px-6 py-4">

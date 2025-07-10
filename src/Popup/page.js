@@ -1,157 +1,37 @@
 "use client";
-import FacebookBtn from "@/components/FacebookBtn/page"
-import { useSession, signOut } from "next-auth/react"
 import { useEffect } from "react";
 import { useRef, useState } from "react";
 import Image from "next/image";
 
 export const Popup = ({ stylish , highest }) => {
-  const { data: session, status } = useSession();
   const [isOpen, setIsOpen] = useState(false);
-  const [isNewUser, setIsNewUser] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [userHasPhone, setUserHasPhone] = useState(false);
+
   const [forcePhoneCheck, setForcePhoneCheck] = useState(false);
   const phoneRef = useRef();
-
+  const [userName, setUsername] = useState(null);
   const openModal = () => setIsOpen(true);
   const closeModal = () => {
-    if (forcePhoneCheck) {
-      return;
-    }
     setIsOpen(false);
   };
 
   useEffect(() => {
-    if (status === "loading") return;
-    
-    if (session?.user?.name) {
-      checkUserImmediately();
+    const getCookie = (name) => {
+      const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+      return match?.[2] || null;
+    };
+  
+    const token = getCookie('token');
+    if (token) {
+      console.log("ชื่อผู้ใช้จาก cookie:", token);
+      setUsername(token);
     }
-  }, [session, status]);
+  }, []);
 
-  const checkUserImmediately = async () => {
-    if (!session?.facebookId) return;
 
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/check-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ facebookId: session.facebookId }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.exists) {
-        if (data.needsPhoneNumber) {
-          setIsNewUser(true);
-          setForcePhoneCheck(true);
-          setIsOpen(true);
-        } else {
-          setUserHasPhone(true);
-          setIsLoaded(true);
-          setForcePhoneCheck(false);
-        }
-      } else {
-        setIsNewUser(true);
-        setForcePhoneCheck(true);
-        setIsOpen(true);
-      }
-    } catch (error) {
-      console.error("Error checking user:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const checkUser = async () => {
-    if (!session?.facebookId) return;
-
-    setIsLoading(true);
-    try {
-      const response = await fetch("/api/check-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ facebookId: session.facebookId }),
-      });
-      
-      const data = await response.json();
-      
-      if (data.exists) {
-        if (data.needsPhoneNumber) {
-          setIsNewUser(true);
-          setForcePhoneCheck(true);
-        } else {
-          setUserHasPhone(true);
-          setIsLoaded(true);
-          setForcePhoneCheck(false);
-          closeModal();
-        }
-      } else {
-        setIsNewUser(true);
-        setForcePhoneCheck(true);
-      }
-    } catch (error) {
-      console.error("Error checking user:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const saveNewUser = async () => {
-    const phone = phoneRef.current?.value;
-    
-    if (!phone) {
-      alert("กรุณากรอกเบอร์โทรศัพท์");
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const requestData = {
-        name: session.userName || session.user?.name,
-        facebookId: session.facebookId,
-        phone: phone
-      };
-      
-      console.log("Sending data to API:", requestData);
-      
-      const response = await fetch("/api/save-user", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
-      
-      const data = await response.json();
-      
-      if (response.ok && data.success) {
-        setUserHasPhone(true);
-        setIsLoaded(true);
-        setForcePhoneCheck(false);
-        closeModal();
-        alert("บันทึกเบอร์โทรศัพท์เรียบร้อยแล้ว!");
-      } else {
-        console.error("API Error:", data);
-        alert(`เกิดข้อผิดพลาด: ${data.error || 'ไม่ทราบสาเหตุ'}`);
-      }
-    } catch (error) {
-      console.error("Error saving user:", error);
-      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleLogout = async () => {
-    await signOut({ callbackUrl: '/' });
+    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    window.location.reload();
   };
 
   return (
@@ -229,87 +109,17 @@ export const Popup = ({ stylish , highest }) => {
           isOpen ? "block" : "hidden"
         }`}
       >
-        {!forcePhoneCheck && (
-          <button
-            onClick={closeModal}
-            className="absolute top-2 right-2 text-black font-bold"
-          >
-            X
-          </button>
-        )}
+     
 
         <div className="p-4">
-          {session?.user ? (
-            <div className="text-center">
-              <p className="text-green-600 font-semibold mb-4">
-                ยินดีต้อนรับ {session.userName || session.user?.name || 'ผู้ใช้'}!
-              </p>
-              <div className="text-gray-600 mb-4 text-sm">
-                <p><strong>Facebook ID:</strong> {session.facebookId || 'ไม่ระบุ'}</p>
-              </div>
-              
-              {isNewUser ? (
-                <div className="text-center">
-                  {forcePhoneCheck && (
-                    <div className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-                      <strong>สำคัญ!</strong> กรุณากรอกเบอร์โทรศัพท์เพื่อใช้งานระบบ
-                    </div>
-                  )}
-                  <p className="text-blue-600 mb-4">
-                    กรุณากรอกเบอร์โทรศัพท์เพื่อดำเนินการต่อ
-                  </p>
-                  <input
-                    type="tel"
-                    placeholder="เบอร์โทรศัพท์"
-                    className="block w-full px-3 py-2 border border-gray-300 rounded mb-4"
-                    ref={phoneRef}
-                    required
-                  />
-                  <button
-                    type="button"
-                    onClick={saveNewUser}
-                    disabled={isLoading}
-                    className="px-6 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition disabled:opacity-50"
-                  >
-                    {isLoading ? "กำลังบันทึก..." : "บันทึกข้อมูล"}
-                  </button>
-                </div>
-              ) : userHasPhone ? (
-                <div className="text-center">
-                  <p className="text-green-600 mb-4">
-                    ข้อมูลครบถ้วนแล้ว
-                  </p>
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className="px-6 py-2 bg-red-500 text-white rounded hover:bg-red-600 transition"
-                  >
-                    ออกจากระบบ
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <p className="text-gray-600 mb-4">
-                    กำลังตรวจสอบข้อมูล...
-                  </p>
-                  <button
-                    type="button"
-                    onClick={checkUser}
-                    disabled={isLoading}
-                    className="px-6 py-2 bg-green-500 text-white rounded hover:bg-green-600 transition disabled:opacity-50"
-                  >
-                    {isLoading ? "กำลังตรวจสอบ..." : "ตรวจสอบข้อมูล"}
-                  </button>
-                </>
-              )}
-            </div>
-          ) : (
-            <div className="text-center">
-              <p className="text-gray-600 mb-4">
-                กรุณาเข้าสู่ระบบด้วย Facebook
-              </p>
-              <FacebookBtn />
-            </div>
+          {userName == null && (
+            <form>
+              <input type="text" name="username" placeholder="Username" />
+              <input type="password" name="password" placeholder="Password" />
+              <input type="text" name="phone" placeholder="Phone" />
+              <button type="submit">Login</button>
+              <button onClick={closeModal}>ยกเลิก</button>
+            </form>
           )}
         </div>
       </div>
