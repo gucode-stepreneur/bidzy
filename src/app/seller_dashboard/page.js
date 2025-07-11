@@ -160,7 +160,7 @@ const Dashboard = () => {
             <p className="text-slate-500 mb-8 max-w-md mx-auto">
               เริ่มต้นการเดินทางด้วยการอัปโหลดผลงานศิลปะแรกของคุณ
             </p>
-            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+            <button  onClick={() => { window.location.href = '/'; }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 !text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
               เพิ่มงานศิลปะ
             </button>
           </div>
