@@ -7,6 +7,9 @@ export const Popup = ({ stylish , highest }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const [userName, setUsername] = useState(null);
+  // เพิ่ม state สำหรับ input
+  const [inputUsername, setInputUsername] = useState("");
+  const [inputPhone, setInputPhone] = useState("");
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => {
@@ -27,26 +30,26 @@ export const Popup = ({ stylish , highest }) => {
   }, []);
 
   const handleSubmit = async () => {
-  const username = document.getElementById('username-input').value;
-  const phone = document.getElementById('phone-input').value;
+    const username = inputUsername;
+    const phone = inputPhone;
 
-  const response = await fetch('/api/signin', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, phone }),
-  });
+    const response = await fetch('/api/signin', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, phone }),
+    });
 
-  const data = await response.json();
-  if (data.success) {
-    // Set cookie ฝั่ง client ด้วย JS เพื่อความแน่นอน
-    document.cookie = `token=${encodeURIComponent(data.user.name)}; path=/; max-age=${60*60*24}`;
-    setUsername(data.user.name); // เพิ่มบรรทัดนี้
-    closeModal(); // ปิด popup
-    // ไม่ต้อง reload
-  } else {
-    console.error('Login failed:', data.message);
-  }
-};
+    const data = await response.json();
+    if (data.success) {
+      // Set cookie ฝั่ง client ด้วย JS เพื่อความแน่นอน
+      document.cookie = `token=${encodeURIComponent(data.user.name)}; path=/; max-age=${60*60*24}`;
+      setUsername(data.user.name); // เพิ่มบรรทัดนี้
+      closeModal(); // ปิด popup
+      // ไม่ต้อง reload
+    } else {
+      console.error('Login failed:', data.message);
+    }
+  };
 
 
   const handleLogout = async () => {
@@ -145,6 +148,8 @@ export const Popup = ({ stylish , highest }) => {
           placeholder="ชื่อ facebook"
           id="username-input"
           className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+          value={inputUsername}
+          onChange={e => setInputUsername(e.target.value)}
         />
         <label className="text-sm text-gray-600">
           *เบอร์โทร โปรดใส่ให้ถูกเพื่อรับการแจ้งเตือน
@@ -155,6 +160,8 @@ export const Popup = ({ stylish , highest }) => {
           placeholder="Phone"
           id="phone-input"
           className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
+          value={inputPhone}
+          onChange={e => setInputPhone(e.target.value)}
         />
         <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
           <button
