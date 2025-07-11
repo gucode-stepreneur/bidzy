@@ -40,7 +40,9 @@ export const Popup = ({ stylish , highest }) => {
   if (data.success) {
     // Set cookie ฝั่ง client ด้วย JS เพื่อความแน่นอน
     document.cookie = `token=${encodeURIComponent(data.user.name)}; path=/; max-age=${60*60*24}`;
-    window.location.reload();
+    setUsername(data.user.name); // เพิ่มบรรทัดนี้
+    closeModal(); // ปิด popup
+    // ไม่ต้อง reload
   } else {
     console.error('Login failed:', data.message);
   }
