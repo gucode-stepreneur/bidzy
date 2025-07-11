@@ -45,7 +45,7 @@ export const Popup = ({ stylish , highest }) => {
       document.cookie = `token=${encodeURIComponent(data.user.name)}; path=/; max-age=${60*60*24}`;
       setUsername(data.user.name); // เพิ่มบรรทัดนี้
       closeModal(); // ปิด popup
-      // ไม่ต้อง reload
+      window.location.reload();
     } else {
       console.error('Login failed:', data.message);
     }
