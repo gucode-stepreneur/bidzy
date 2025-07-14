@@ -210,7 +210,9 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
     });
     
     if(isLoggedIn == true && userName != "" && idArtWork != null && artistName != ""){
-      if(artistName == userName){
+      const decode_artist = decodeURIComponent(artistName)
+      const decode_username = decodeURIComponent(userName)
+      if(decode_artist == decode_username){
         setRole('artist')
         console.log("🎨 ผู้ใช้เป็นศิลปินของงานนี้:", userName);
       } else {
@@ -420,20 +422,20 @@ async function forceEndAuction() {
       index === 0 ? 'border-[#4047A1] !shadow-[0_1px_10px_0px_#4047A1]' : 'border-black'
     }`}
   >
-    <div  className={`text-lg font-bold mr-1 ${
+    <div  className={`text-md sm:text-lg font-bold mr-1 ${
           index === 0 ? '!text-[#4047A1]' : 'text-black'
         }`}
     >{decodeURIComponent(item.bidder_name)}
     </div>
     <div>
       <span
-        className={`text-2xl font-bold mr-10 ${
+        className={` text-lg sm:text-2xl font-bold mr-10 ${
           index === 0 ? '!text-[#4047A1]' : '!text-gray-600'
         }`}
       >
         {item.bid_amount}
       </span>
-      <span className="text-lg text-gray-600">บาท</span>
+      <span className=" text-sm sm:text-lg text-gray-600">บาท</span>
     </div>
   </div>
 ))}

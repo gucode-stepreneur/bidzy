@@ -1,7 +1,6 @@
 import "./globals.css";
-import { Inter } from 'next/font/google'
-const inter = Inter({ subsets: ['latin'] })
-
+import { Kanit } from 'next/font/google';
+const kanit = Kanit({ subsets: ['thai', 'latin'], weight: ['400', '700'] });
 
 
 export const metadata = {
@@ -12,9 +11,9 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="th">
-     <body className={inter.className}>
-  {children}
-    </body>
+      <body className={kanit.className}>
+        {children}
+      </body>
     </html>
   );
 }

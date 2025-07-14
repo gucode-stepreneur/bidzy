@@ -70,7 +70,7 @@ export const Popup = ({ stylish , highest }) => {
       required
     />
     <label
-      className="w-[100%] border-[#4047A1] border-[3.5px] border-dashed h-[300px] flex items-center justify-center text-gray-600 rounded-xl cursor-pointer"
+      className="w-[100%] border-[#4047A1] border-[3.5px] border-dashed h-[300px] flex flex-col items-center justify-center text-gray-600 rounded-xl cursor-pointer"
       onClick={openModal}
     >
       <Image id='upload_icon' src="/icon/cloud-computing 1.png" width={65} height={65} alt="upload_icon" />
@@ -104,7 +104,7 @@ export const Popup = ({ stylish , highest }) => {
 ) : stylish == 3 ? (
   <button
     onClick={openModal}
-    className="bg-blue-600 w-full !text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+    className="bg-[#4047A1] w-full !text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
   >
     เริ่มประมูล
   </button>

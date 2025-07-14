@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useEffect } from 'react';
 import Image from 'next/image';
 import Popup from '@/Popup/page';
+import { Kanit } from 'next/font/google';
+const kanit = Kanit({ subsets: ['thai', 'latin'], weight: ['400', '700'] });
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -48,9 +50,7 @@ const Navbar = () => {
                 <div className="flex items-center space-x-4">
                   {/* create auction button */}
                     <a href='/'>
-                        <div className="flex hover:scale-105 hover:shadow-2xl hover:brightness-110
-    active:scale-95
-    animate-bounce flex-row items-center justify-center shadow-lg gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm">
+                        <div className={`flex hover:scale-105 hover:shadow-2xl hover:brightness-110 active:scale-95 animate-bounce flex-row items-center justify-center shadow-lg gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm ${kanit.className}`}>
                             <span className='!text-[#4047A1] font-bold hidden md:block'>เริ่มงานประมูลใหม่</span>
                             <span>
                                 <div>
