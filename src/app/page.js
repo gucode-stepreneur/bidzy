@@ -6,11 +6,14 @@ import Popup from "@/Popup/page";
 import { Auc_board } from "@/Auc_board/page";
 import Image from "next/image";
 import Navbar from "@/Navbar/page";
+import { useRef } from "react"; // เพิ่มเข้าไป 
 
 const page = () => {
+  const inputRef = useRef(null); // สร้าง ref
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [idArt , setIdArt] = useState(null)
+  const [hasSelectedDate, setHasSelectedDate] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [userName, setUsername] = useState("");
   const [deadline, setDeadline] = useState("");
@@ -200,15 +203,23 @@ const page = () => {
       placeholder="บิดครั้งละ"
       required
     />
+    <div className="relative" >
+      <label htmlFor="end_at" className="block w-full h-full absolute top-2 left-4 pointer-events-auto !text-black z-100"   onClick={() => inputRef.current?.showPicker?.()}>
+      {hasSelectedDate ? "เลือกแล้ว" : "เลือกวันจบประมูล"}
+        </label>
     <input
+    id="end_at"
       type="datetime-local"
+      ref={inputRef}
       name="end_at"
       disabled={isSubmitting}
-      className={`block w-full !text-black px-4 py-2 border border-gray-300 rounded-lg ${
+      onChange={(e) => setHasSelectedDate(!!e.target.value)} 
+      className={`block w-full !text-white px-4 py-2 border border-gray-300 rounded-lg ${
         isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''
       }`}
       required
     />
+    </div>
     <input
       type="number"
       name="fee"

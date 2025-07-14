@@ -18,11 +18,7 @@
 
 }
 
-input[type="datetime-local"] {
-  color: black !important; /* หรือสีดำที่ต้องการ */
-  -webkit-text-fill-color: black !important;
-  background-color: #f9fafb;
-}
+
 
 body {
   background: var(--background);
