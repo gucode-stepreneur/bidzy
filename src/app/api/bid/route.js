@@ -103,7 +103,7 @@ export async function POST(request) {
         const params = new URLSearchParams();
         params.set('msisdn', formatPhone(artist.phone));
         params.set('message', artistMessage);
-        params.set('sender', 'AVIATE');
+        params.set('sender', 'Bidzy');
         params.set('shorten_url', 'true');
       
         await fetch('https://api-v2.thaibulksms.com/sms', {
@@ -123,7 +123,7 @@ export async function POST(request) {
         const params = new URLSearchParams();
         params.set('msisdn', allPhones);
         params.set('message', bidderMessage);
-        params.set('sender', 'AVIATE');
+        params.set('sender', 'Bidzy');
         params.set('shorten_url', 'true');
       
         await fetch('https://api-v2.thaibulksms.com/sms', {
