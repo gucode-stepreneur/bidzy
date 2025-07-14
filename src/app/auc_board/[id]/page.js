@@ -27,6 +27,13 @@ export default function auc_detail(){
 
     const params = useParams();
 
+
+    const push_to_bottom = () => {
+      window.location.href = '#board';
+      const btn = document.getElementById('push');
+      btn.style.display = 'none'; // ✅ แก้จาก 'hidden' เป็น 'none'
+    }
+    
     // ฟังก์ชันสำหรับจัดการ URL รูปภาพ
     function getImageUrl(path) {
       if (!path) return null;
@@ -89,7 +96,7 @@ export default function auc_detail(){
       }
     }, [params.id]);
 
-
+    
 
 
     
@@ -105,7 +112,7 @@ export default function auc_detail(){
               ) : (
                 <>
                   <div className="text-xl text-center">
-                    <span className=" font-bold">ศิลปิน : </span><span className="text-2xl font-bold !text-[#4047A1]">{sellerName}</span>
+                    <span className=" font-bold">ศิลปิน : </span><span className="text-2xl font-bold !text-[#4047A1]">{decodeURIComponent(sellerName)}</span>
                   </div>
               <div className="w-[100%] flex justify-center border-[#4047A1] border-[0.5px] border-dashed relative">
                 <div className="w-[50%] h-max overflow-hidden self-center">
@@ -189,6 +196,16 @@ export default function auc_detail(){
                   />
                 </div>
               )}
+              <div
+  id="push"
+  className="block md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-[#4047A1] to-[#6C63FF] shadow-lg flex items-center justify-center text-white text-3xl font-bold cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-2xl active:scale-95 z-50"
+  onClick={push_to_bottom}
+  title="เลื่อนไปด้านล่าง"
+>
+  <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+  </svg>
+</div>
           </div>
 
 

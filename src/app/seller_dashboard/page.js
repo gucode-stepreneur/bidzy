@@ -140,11 +140,11 @@ const Dashboard = () => {
       <main className="relative z-10 max-w-7xl mx-auto px-6 py-12">
         {/* Title Section */}
         <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-blue-800 via-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
             งานประมูลทั้งหมดของคุณ
           </h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto">
-            จัดการและติดตามผลงานศิลปะของคุณในแพลตฟอร์มประมูลออนไลน์
+          จัดการเเละติดตามการประมูลของคุณง่ายๆบน Bidzy
           </p>
         </div>
 
@@ -160,7 +160,7 @@ const Dashboard = () => {
             <p className="text-slate-500 mb-8 max-w-md mx-auto">
               เริ่มต้นการเดินทางด้วยการอัปโหลดผลงานศิลปะแรกของคุณ
             </p>
-            <button  onClick={() => { window.location.href = '/'; }} className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 !text-white px-8 py-4 rounded-xl font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
+            <button  onClick={() => { window.location.href = '/'; }} className="bg-[#4047A1] !text-white px-8 py-4 rounded-xl font-semibold !shadow-xl hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300">
               เพิ่มงานศิลปะ
             </button>
           </div>

@@ -233,7 +233,8 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
     if (history.length > 0 && history[0]?.bidder_name) {
       const bidder_name = history[0].bidder_name;
       console.log("🎯 ผู้ชนะคือ:", bidder_name);
-      setWinnerName(bidder_name);
+      const bidder_name_decode = decodeURIComponent(bidder_name)
+      setWinnerName(bidder_name_decode);
     } else {
       console.warn("⚠️ ไม่พบข้อมูลผู้ชนะ");
       setWinnerName("ไม่พบผู้ชนะ");
@@ -374,11 +375,16 @@ async function forceEndAuction() {
 }
 
  const share = () => {
+  
     const link = `${window.location.origin}/auc_board/${idArt}`
     setLink(link)
-    navigator.clipboard.writeText(link);
-    setModalOpen(true)
+    navigator.clipboard.writeText(link);  
     setCopied(true);
+    if(modalOpen == true){
+      setTimeout(() => setModalOpen(false), 1000); 
+    }else if(modalOpen == false){
+    setModalOpen(true)
+    }
     setTimeout(() => setCopied(false), 2000); 
   }
   useEffect(() => {
@@ -390,7 +396,7 @@ async function forceEndAuction() {
 }, [idArt]);
 
   return (
-    <div className="w-full h-max flex flex-col  mx-auto  pb-10 relative bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
+    <div id="board" className="w-full h-max flex flex-col  mx-auto  pb-10 relative bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
     <div className="text-center py-5">
        <Countdown
         deadline={deadline}
@@ -417,7 +423,7 @@ async function forceEndAuction() {
     <div  className={`text-lg font-bold mr-1 ${
           index === 0 ? '!text-[#4047A1]' : 'text-black'
         }`}
-    >{item.bidder_name}
+    >{decodeURIComponent(item.bidder_name)}
     </div>
     <div>
       <span
@@ -519,8 +525,8 @@ async function forceEndAuction() {
             <Image src="/icon/correct.png" width={1000} height={1000} alt="mascot" className="object-contain" /> 
     </div>
     <div className="font-bold text-md">การประมูลเริ่มแล้ว แชร์ลิงค์ไปหานักประมูลเลย</div>
-    <div className="flex flex-row">
-      <div className="text-sm text-gray-800 bg-gray-100 px-4 py-3 rounded-l-xl break-words w-full font-mono text-center flex items-center">
+    <div className="flex flex-row gap-2">
+      <div className="text-sm text-gray-800 overflow-y-auto bg-gray-100 px-4 py-3 rounded-l-xl break-words w-full font-mono text-center flex items-center">
             {link}
       </div>
       <button
@@ -566,7 +572,7 @@ async function forceEndAuction() {
       </p>
      {(modalType === "winner" || modalType === "artist") && (
         <div className="w-full h-max px-4 py-2 bg-[#4047A1] !text-white rounded-md text-center">
-          {modalType === "winner" ? `ชื่อเฟสบุ๊คศิลปิน : ${artistName}` : `ชื่อเฟสบุ๊คผู้ชนะ : ${winnerName}`}
+          {modalType === "winner" ? `ชื่อเฟสบุ๊คศิลปิน : ${decodeURIComponent(artistName)}` : `ชื่อเฟสบุ๊คผู้ชนะ : ${decodeURIComponent(winnerName)}`}
         </div>
       )}
 

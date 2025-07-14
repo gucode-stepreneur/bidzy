@@ -46,8 +46,11 @@ const Navbar = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
+                  {/* create auction button */}
                     <a href='/'>
-                        <div className="flex flex-row items-center justify-center gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm">
+                        <div className="flex hover:scale-105 hover:shadow-2xl hover:brightness-110
+    active:scale-95
+    animate-bounce flex-row items-center justify-center shadow-lg gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm">
                             <span className='!text-[#4047A1] font-bold hidden md:block'>เริ่มงานประมูลใหม่</span>
                             <span>
                                 <div>
@@ -56,8 +59,9 @@ const Navbar = () => {
                             </span>
                         </div>
                     </a>
+                  {/* go to seller dashboard button */}
                     <a href='/seller_dashboard'>
-                        <div className="flex flex-row items-center justify-center gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm">
+                        <div className="flex flex-row items-center justify-center shadow-sm gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm">
                             <span className='!text-[#4047A1] font-bold hidden md:block'>การประมูลทั้งหมด</span>
                             <span>
                             <div>
@@ -70,7 +74,7 @@ const Navbar = () => {
   <div className="relative">
     <div
       onClick={() => setShowDropdown(prev => !prev)}
-      className="flex flex-row items-center justify-center gap-3 border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
+      className="flex flex-row items-center justify-center shadow-sm gap-3 border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
     >
       <Image
         className="object-contain"
@@ -82,7 +86,7 @@ const Navbar = () => {
     </div>
 
     {showDropdown && (
-      <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50">
+      <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-sm z-50">
         <button
           onClick={() => {
             document.cookie = "token=; max-age=0";

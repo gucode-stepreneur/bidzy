@@ -32,7 +32,8 @@ const page = () => {
     const token = getCookie('token');
     if (token) {
       console.log("ชื่อผู้ใช้จาก cookie:", token);
-      setUsername(token);
+      const username = decodeURIComponent(token)
+      setUsername(username);
       setIsLoggedIn(true);
     }else{
       setIsLoggedIn(false);
@@ -104,18 +105,17 @@ const page = () => {
  
 
   return (
-    <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-8  bg-gray-50 min-h-screen">
+    <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-8  bg-gray-50 min-h-screen ">
       <Navbar />
-      <div className="w-[100%] h-max mt-25">
+      <div className="w-[100%] h-max mt-25 ">
   
 
   <form id = "createForm"
     onSubmit={handleSubmit}
-    className="bg-white p-6 rounded-2xl shadow-md  w-[100%] border border-gray-200 flex flex-col gap-5"
+    className="bg-white p-6 rounded-2xl shadow-md  w-[100%] max-w-[550px] border border-gray-200 flex flex-col gap-5 mx-auto"
   >
     <div className="flex flex-row w-max gap-5">
-          <Image src="/icon/BIDZY logo.png" width={100} height={100} alt="bidzy logo" />
-          <p className="text-xl font-bold" style={{color : '#4047A1'}}>ช่วยคุณประมูลงานศิลปะ</p>
+          <p className="text-lg font-bold" style={{color : '#4047A1'}}>มาอัพโหลดผลงานกันเลย</p>
     </div>
     {!isLoggedIn && <Popup stylish={1} />}
     {isLoggedIn && (
@@ -146,7 +146,6 @@ const page = () => {
             <div className="flex flex-col items-center justify-center">
               <Image src="/icon/cloud-computing 1.png" width={65} height={65} alt="upload icon" />
               <Image src="/icon/Group 5.png" width={95} height={70} alt="upload icon" />
-              <p className="text-sm text-gray-500 mt-2">คลิกเพื่อเลือกรูปภาพ</p>
             </div>
           ) : null}
           {previewImage && (
@@ -205,7 +204,7 @@ const page = () => {
       type="datetime-local"
       name="end_at"
       disabled={isSubmitting}
-      className={`block w-full px-4 py-2 border border-gray-300 rounded-lg ${
+      className={`block w-full !text-black px-4 py-2 border border-gray-300 rounded-lg ${
         isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''
       }`}
       required
