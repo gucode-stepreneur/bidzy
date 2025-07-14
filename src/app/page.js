@@ -205,7 +205,7 @@ const page = () => {
     />
     <div className="relative" >
       <label htmlFor="end_at" className="block w-full h-full absolute top-2 left-4 pointer-events-auto !text-black z-100"   onClick={() => inputRef.current?.showPicker?.()}>
-      {hasSelectedDate ? "เลือกแล้ว" : "เลือกวันจบประมูล"}
+      {hasSelectedDate ? "" : "เลือกวันจบประมูล"}
         </label>
     <input
     id="end_at"
@@ -214,8 +214,10 @@ const page = () => {
       name="end_at"
       disabled={isSubmitting}
       onChange={(e) => setHasSelectedDate(!!e.target.value)} 
-      className={`block w-full !text-white px-4 py-2 border border-gray-300 rounded-lg ${
+      className={`block w-full  px-4 py-2 border border-gray-300 rounded-lg ${
         isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''
+      }${
+        hasSelectedDate ? '!text-black' : '!text-white' 
       }`}
       required
     />
