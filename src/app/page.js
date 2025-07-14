@@ -204,7 +204,7 @@ const page = () => {
       required
     />
     <div className="relative" >
-      <label htmlFor="end_at" className="block w-full h-full absolute top-2 left-4 pointer-events-auto !text-black z-100"   onClick={() => inputRef.current?.showPicker?.()}>
+      <label htmlFor="end_at" className="block w-full h-full absolute top-2 left-4 pointer-events-auto !text-black/50 z-100"   onClick={() => inputRef.current?.showPicker?.()}>
       {hasSelectedDate ? "" : "เลือกวันจบประมูล"}
         </label>
     <input
