@@ -31,7 +31,8 @@ const Dashboard = () => {
     const token = getCookie('token');
     if (token) {
       console.log("ชื่อผู้ใช้จาก cookie:", token);
-      setUsername(token);
+      const username = decodeURIComponent(token)
+      setUsername(username);
       setIsLoggedIn(true);
     }else{
       setIsLoggedIn(false);
