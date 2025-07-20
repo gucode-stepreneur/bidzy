@@ -10,6 +10,7 @@ export const Popup = ({ stylish , highest }) => {
   // เพิ่ม state สำหรับ input
   const [inputUsername, setInputUsername] = useState("");
   const [inputPhone, setInputPhone] = useState("");
+  const [errorMsg, setErrorMsg] = useState(""); // เพิ่ม state สำหรับ error
 
   const openModal = () => setIsOpen(true);
   const closeModal = () => {
@@ -30,6 +31,23 @@ export const Popup = ({ stylish , highest }) => {
   }, []);
 
   const handleSubmit = async () => {
+
+     // เช็ค required
+  if (!inputUsername.trim()) {
+    setErrorMsg("กรุณากรอกชื่อ facebook");
+    return;
+  }
+  if (!inputPhone.trim()) {
+    setErrorMsg("กรุณากรอกเบอร์โทร");
+    return;
+  }
+  // เช็คเบอร์โทร: ต้อง 10 หลักและขึ้นต้นด้วย 0
+  if (!/^0[0-9]{9}$/.test(inputPhone.trim())) {
+    setErrorMsg("กรุณากรอกเบอร์โทร 10 หลักและขึ้นต้นด้วย 0");
+    return;
+  }
+
+  setErrorMsg(""); // ล้าง error ถ้าผ่าน
     const username = inputUsername;
     const phone = inputPhone;
 
@@ -47,6 +65,7 @@ export const Popup = ({ stylish , highest }) => {
       closeModal(); // ปิด popup
       window.location.reload();
     } else {
+      setErrorMsg('login ไม่สำเร็จ อาจกรอกเบอร์หรือชื่อเฟสผิดพลาด'); // set error message
       console.error('Login failed:', data.message);
     }
   };
@@ -138,6 +157,11 @@ export const Popup = ({ stylish , highest }) => {
   {userName == null && (
     <div className="z-150">
       <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">ลงชื่อเข้าใช้</h2>
+      {errorMsg && (
+        <div className="mb-2 text-center text-red-600 font-semibold bg-red-50 border border-red-200 rounded p-2 animate-pulse text-sm">
+          {errorMsg}
+        </div>
+      )}
       <div className="flex flex-col gap-4">
         <label className="text-sm text-gray-600">
           *ชื่อ facebook ต้องเป๊ะเท่านั้นนะครับ
@@ -150,6 +174,7 @@ export const Popup = ({ stylish , highest }) => {
           className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
           value={inputUsername}
           onChange={e => setInputUsername(e.target.value)}
+          required
         />
         <label className="text-sm text-gray-600">
           *เบอร์โทร โปรดใส่ให้ถูกเพื่อรับการแจ้งเตือน
@@ -162,12 +187,13 @@ export const Popup = ({ stylish , highest }) => {
           className="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 w-full"
           value={inputPhone}
           onChange={e => setInputPhone(e.target.value)}
+          required
         />
         <div className="flex flex-col sm:flex-row gap-4 mt-4 justify-center">
           <button
             type="button"
             onClick={handleSubmit}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full sm:w-auto"
+            className="bg-blue-600 !text-white px-4 py-2 rounded-md hover:bg-blue-700 transition w-full sm:w-auto"
           >
             Login
           </button>

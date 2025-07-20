@@ -19,6 +19,8 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
   const [artistName , setArtistName] = useState("")
   const [history , setHistory] = useState([]);
 
+  const [isBidding, setIsBidding] = useState(false);
+
   const [isConnected, setIsConnected] = useState(false);
   const [userName, setUsername] = useState("");
   const [isLoaded, setIsLoaded] = useState(false);
@@ -286,6 +288,9 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
 
   function submitBid(e) {
     e.preventDefault();
+    if (isBidding) return; // กันกดรัว
+
+    setIsBidding(true);
 
     // ✅ เช็ค role ก่อน - ศิลปินไม่สามารถบิดงานตัวเองได้
     if (role === "artist") {
@@ -338,6 +343,9 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
     })
     .catch((error) => {
       console.error("❌ เกิดข้อผิดพลาดในการส่ง bid:", error);
+    })
+    .finally(() => {
+      setIsBidding(false); // ปลดล็อกปุ่ม
     });
   }
 
@@ -396,6 +404,10 @@ async function forceEndAuction() {
     share();
   }
 }, [idArt]);
+
+  // เช็คว่าผู้ใช้เป็นผู้บิดล่าสุดหรือไม่
+  const isLastBidder = history.length > 0 &&
+    decodeURIComponent(userName) === decodeURIComponent(history[0]?.bidder_name);
 
   return (
     <div id="board" className="w-full h-max flex flex-col  mx-auto  pb-10 relative bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
@@ -464,13 +476,24 @@ async function forceEndAuction() {
               required
               placeholder="จำนวนบิด"
               className="px-4 py-2 w-full border border-gray-300 rounded-l-lg focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              disabled={isLastBidder}
               />
               <input
-              type="submit"
-              value="บิด"
-              className="w-full sm:w-[60px] h-[42px] bg-[#4047A1] hover:bg-blue-700 !text-white rounded-r-lg font-semibold shadow transition-all"
+                type="submit"
+                value={isBidding ? "โหลด..." : "บิด"}
+                disabled={isBidding || isLastBidder}
+                className={`w-full sm:w-[60px] h-[42px] rounded-r-lg font-semibold shadow transition-all
+                  ${(isBidding || isLastBidder)
+                    ? "bg-gray-400 !text-white cursor-not-allowed"
+                    : "bg-[#4047A1] hover:bg-blue-700 !text-white"}
+                `}
               />
             </div>
+            {isLastBidder && (
+              <div className="text-red-500 text-sm text-center w-full mt-2">
+                คุณเป็นผู้บิดล่าสุด กรุณารอให้มีคนอื่นบิด!
+              </div>
+            )}
           </form>
         ) : role === "bidder" && !isLoggedIn ? (
           <Popup stylish={2} highest={highest} />

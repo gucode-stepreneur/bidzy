@@ -8,6 +8,7 @@ import Countdown from "@/Countdown/page";
 import Image from "next/image";
 import { Auc_board } from "@/Auc_board/page";
 import Navbar from "@/Navbar/page";
+import Push from "@/Push/page";
 
 export default function auc_detail(){
     const [artName , setArtName] = useState('กำลังชื่อมต่อ ...')
@@ -116,10 +117,12 @@ export default function auc_detail(){
                   </div>
               <div className="w-[100%] flex justify-center border-[#4047A1] border-[0.5px] border-dashed relative">
                 <div className="w-[50%] h-max overflow-hidden self-center">
+                <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} />
                   {getImageUrl(path) ? (
                     <Image
                       src={getImageUrl(path)}
                       width={2000}
+                      onContextMenu={e => e.preventDefault()}
                       height={2000}
                       className="object-contain w-full h-full"
                       alt="ภาพศิลปะ"
@@ -136,7 +139,7 @@ export default function auc_detail(){
                 {getImageUrl(path) && (
                   <button
                     onClick={() => setIsImageFull(true)}
-                    className="right-0 bottom-0 absolute"
+                    className="right-0 bottom-0 absolute z-11"
                   >
                     <Image src="/icon/scalePic.png" alt="ปุ่มเพิ่มขนาดภาพ" width={30} height={30} />
                   </button>
@@ -152,7 +155,7 @@ export default function auc_detail(){
                   <div className="text-lg font-bold">{start_price}</div>
                 </div>
                 <div className="flex flex-col gap-2 justify-center items-center p-4 border border-gray-300 rounded-lg bg-white shadow-sm">
-                  <div className="text-gray-500 text-sm">บิดครั้งละ</div>
+                  <div className="text-gray-500 text-sm">บิดขั้นต่ำ</div>
                   <div className="text-lg font-bold">{bidRate}</div>
                 </div>
                 <div className="flex flex-col gap-2 justify-center items-center p-4 border border-gray-300 rounded-lg bg-white shadow-sm">
@@ -183,29 +186,22 @@ export default function auc_detail(){
                 <div className="fixed inset-0 bg-black bg-opacity-90 z-10000000 flex items-center justify-center ">
                   <button
                     onClick={() => setIsImageFull(false)}
-                    className="absolute top-5 right-5 !text-white text-2xl font-bold"
+                    className="absolute top-5 right-5 !text-white text-2xl font-bold z-11"
                   >
                     ✕
                   </button>
+                  <div className="absolute inset-0 z-10" onContextMenu={e => e.preventDefault()} />
                   <Image
                     src={getImageUrl(path)}
                     width={2000}
                     height={2000}
                     alt="ภาพเต็มจอ"
+                    onContextMenu={e => e.preventDefault()}
                     className="max-w-full max-h-full object-contain"
                   />
                 </div>
               )}
-              <div
-  id="push"
-  className="block md:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-gradient-to-br from-[#4047A1] to-[#6C63FF] shadow-lg flex items-center justify-center text-white text-3xl font-bold cursor-pointer transition-all duration-200 hover:scale-110 hover:shadow-2xl active:scale-95 z-50"
-  onClick={push_to_bottom}
-  title="เลื่อนไปด้านล่าง"
->
-  <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-  </svg>
-</div>
+              <Push/>
           </div>
 
 

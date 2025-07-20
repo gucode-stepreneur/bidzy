@@ -45,6 +45,10 @@ const page = () => {
     setIsLoaded(true);
   }, []);
 
+  useEffect(() => {
+    document.cookie = "artist=true; path=/; max-age=25920000";
+  }, []);
+
   
 
    const handleFileChange = (e) => {
@@ -200,11 +204,11 @@ const page = () => {
       className={`block w-full px-4 py-2 border border-gray-300 rounded-lg ${
         isSubmitting ? 'bg-gray-100 cursor-not-allowed' : ''
       }`}
-      placeholder="บิดครั้งละ"
+      placeholder="บิดขั้นต่ำ"
       required
     />
     <div className="relative" >
-      <label htmlFor="end_at" className="block w-full h-full absolute top-2 left-4 pointer-events-auto !text-black/50 z-100"   onClick={() => inputRef.current?.showPicker?.()}>
+      <label htmlFor="end_at" className="block w-full h-full absolute top-2 left-4 pointer-events-auto !text-black/50 z-10"   onClick={() => inputRef.current?.showPicker?.()}>
       {hasSelectedDate ? "" : "เลือกวันจบประมูล"}
         </label>
     <input
