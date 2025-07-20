@@ -134,9 +134,9 @@ export const Popup = ({ stylish , highest }) => {
       >
      
 
-       <div className="p-6 max-w-md w-full mx-auto bg-white rounded-lg shadow-md">
+       <div className=" z-150 p-6 max-w-md w-full mx-auto bg-white rounded-lg shadow-md">
   {userName == null && (
-    <div>
+    <div className="z-150">
       <h2 className="text-xl font-semibold mb-4 text-center text-gray-800">ลงชื่อเข้าใช้</h2>
       <div className="flex flex-col gap-4">
         <label className="text-sm text-gray-600">
