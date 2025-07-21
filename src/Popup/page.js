@@ -5,6 +5,9 @@ import Image from "next/image";
 
 export const Popup = ({ stylish , highest }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showLoggedInAlert, setShowLoggedInAlert] = useState(false);
+
+  const [isLoggedIn , setIsLoggedIn] = useState(false)
 
   const [userName, setUsername] = useState(null);
   // เพิ่ม state สำหรับ input
@@ -62,8 +65,9 @@ export const Popup = ({ stylish , highest }) => {
       // Set cookie ฝั่ง client ด้วย JS เพื่อความแน่นอน
       document.cookie = `token=${encodeURIComponent(data.user.name)}; path=/; max-age=${60*60*24}`;
       setUsername(data.user.name); // เพิ่มบรรทัดนี้
-      closeModal(); // ปิด popup
-      window.location.reload();
+      closeModal();
+      setIsLoggedIn(true); // <<< เพิ่มบรรทัดนี้
+      setShowLoggedInAlert(true); // เปิด modal แจ้งเตือน
     } else {
       setErrorMsg('login ไม่สำเร็จ อาจกรอกเบอร์หรือชื่อเฟสผิดพลาด'); // set error message
       console.error('Login failed:', data.message);
@@ -75,9 +79,38 @@ export const Popup = ({ stylish , highest }) => {
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
     window.location.reload();
   };
+  function closeAlert(){
+    setShowLoggedInAlert(false);
+    window.location.reload();
+  }
 
   return (
     <div>
+      {isLoggedIn == true && (
+      <div  id="logged-in-alert-modal"
+      className={`z-[999999] fixed flex items-center justify-center top-0 left-[50%] transform -translate-x-1/2 w-[100vw] h-[100vh] bg-black/90 shadow-lg ${
+        showLoggedInAlert ? "block" : "hidden"
+      }`}>
+        <button
+                    onClick={closeAlert}
+                    className="absolute top-5 right-5 !text-white text-2xl font-bold z-11"
+                  >
+                    ✕
+      </button>
+          <div className=" z-150 p-6 max-w-md w-full mx-auto bg-white rounded-lg shadow-md">
+            <div>
+              <div className="flex flex-col gap-4">
+                <Image src="/icon/bidzycry.png" alt='bidzy tiktok mascot' width={220} height={220} className='self-center w-[220px] h-auto object-contain' />
+                <div className='text-center font-bold text-md mb-6  tracking-wider'>
+                  <span className='block'>ระวัง ! เนื่องจากอยู่ในช่วงเบต้า</span>
+                  <span>ผู้ใช้บางท่านอาจไม่ได้รับการแจ้งเตือน</span>
+                </div>
+              </div>
+            </div>
+          </div>
+      </div>
+    )}
+
      {stylish == 1 ? (
   <div>
     <input
@@ -212,6 +245,7 @@ export const Popup = ({ stylish , highest }) => {
 
 
       </div>
+      
     </div>
   );
 };
