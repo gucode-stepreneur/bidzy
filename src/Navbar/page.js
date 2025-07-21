@@ -149,8 +149,8 @@ const Navbar = () => {
       <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-sm z-50">
         <button
           onClick={() => {
-            document.cookie = "token=; max-age=0";
-            window.location.href = "/";
+            document.cookie = "token=; max-age=0; path=/";
+            window.location.reload();
           }}
           className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-gray-100"
         >
