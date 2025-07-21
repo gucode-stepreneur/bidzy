@@ -411,6 +411,10 @@ async function forceEndAuction() {
 
   return (
     <div id="board" className="w-full h-max flex flex-col  mx-auto  pb-10 relative bg-white rounded-2xl shadow-lg border border-gray-300 overflow-hidden">
+      <div className="text-center p-4 !text-red-600">
+        ขณะนี้ระบบอยู่ระหว่างทดสอบ อาจไม่ได้รับ SMS แจ้งเตือนในบางกรณี
+        แนะนำให้ตรวจสอบเว็บไซต์เป็นระยะ เพื่อไม่พลาดข้อมูลสำคัญค่ะ !!
+      </div>
     <div className="text-center py-5">
        <Countdown
         deadline={deadline}

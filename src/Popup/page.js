@@ -101,13 +101,12 @@ export const Popup = ({ stylish , highest }) => {
             <div>
               <div className="flex flex-col gap-4">
                 <Image src="/icon/bidzycry.png" alt='bidzy tiktok mascot' width={220} height={220} className='self-center w-[220px] h-auto object-contain' />
-                <div className='text-center font-bold text-md mb-6  tracking-wider'>
-                  <span className='block'>ระวัง ! เนื่องจากอยู่ในช่วงเบต้า</span>
-                  <span>ผู้ใช้บางท่านอาจไม่ได้รับการแจ้งเตือน</span>
+                <div className='text-center text-md mb-6  tracking-wider px-2 sm:px-10'>
+                  <span className='block'>ขณะนี้ระบบอยู่ระหว่างทดสอบ อาจไม่ได้รับ SMS แจ้งเตือนในบางกรณี แนะนำให้ตรวจสอบเว็บไซต์เป็นระยะ เพื่อไม่พลาดข้อมูลสำคัญค่ะ</span>
                 </div>
               </div>
             </div>
-          </div>
+          </div>  
       </div>
     )}
 
