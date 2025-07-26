@@ -41,13 +41,24 @@ export async function POST(request) {
 
     // ✅ 1. ใช้ transaction เพื่อป้องกัน race condition
     const newBid = await prisma.$transaction(async (tx) => {
+      // ดึงข้อมูล artwork เพื่อเช็ค bid_rate
+      const artworkData = await tx.artwork.findUnique({
+        where: { id: id_artwork },
+        select: { bid_rate: true, start_price: true },
+      });
+
       // ตรวจสอบ bid ล่าสุดใน transaction เดียวกัน
       const latestBid = await tx.bidHistory.findFirst({
         where: { id_artwork },
         orderBy: { bid_at: 'desc' },
       });
 
-      if (latestBid && numericBidAmount <= latestBid.bid_amount) {
+      // คำนวณราคาขั้นต่ำที่ต้องบิด
+      const currentHighest = latestBid ? latestBid.bid_amount : artworkData.start_price;
+      const minimumBidAmount = currentHighest + artworkData.bid_rate;
+
+      // เช็คว่า bid ใหม่มากกว่าขั้นต่ำหรือไม่
+      if (numericBidAmount < minimumBidAmount) {
         throw new Error("BID_AMOUNT_TOO_LOW");
       }
 
@@ -158,7 +169,7 @@ export async function POST(request) {
     // จัดการ error เฉพาะสำหรับ bid amount ต่ำเกินไป
     if (error.message === "BID_AMOUNT_TOO_LOW") {
       return new Response(JSON.stringify({ 
-        error: "มีคนบิดสูงกว่าหรือเท่ากับจำนวนที่คุณบิด กรุณาลองใหม่อีกครั้ง" 
+        error: "จำนวนบิดต้องมากกว่าราคาปัจจุบันตาม bid rate ที่กำหนด กรุณาลองใหม่อีกครั้ง" 
       }), {
         status: 409, // Conflict status
         headers: { "Content-Type": "application/json" },
