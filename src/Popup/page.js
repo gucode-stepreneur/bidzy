@@ -160,10 +160,10 @@ export const Popup = ({ stylish , highest }) => {
     เริ่มประมูล
   </button>
 ) : stylish == 4? (
-  <div className="">
-      <div
+  <div className="flex flex-col md:block items-center gap-2 md:gap-0 relative">
+    <div
         onClick={openModal}
-        className="flex flex-row items-center justify-center gap-3 border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
+        className="flex flex-row items-center justify-center gap-3 relative border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
       >
         <Image
           className="object-contain"
@@ -172,7 +172,18 @@ export const Popup = ({ stylish , highest }) => {
           height={20}
           alt="User icon"
         />
+    <div className='absolute bottom-0 right-0 transform translate-x-1/3 rounded-full translate-y-1/3 w-[15px] h-[15px] bg-gray-500 animate-ping'
+    style={{ 
+      animationDelay: '1s',
+      animationDuration: '1s',
+       animationTimingFunction: 'cubic-bezier(1, 0, 1, 1)',
+       animationIterationCount: 5,   
+     }}
+    ></div>
       </div>
+    <div className='text-[10px] block md:hidden'>ล็อคอิน</div>
+
+
     </div>
 ) : null}
 

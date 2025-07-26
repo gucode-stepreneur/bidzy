@@ -39,13 +39,26 @@ export async function POST(request) {
       });
     }
 
-    // ✅ 1. สร้าง bid แล้วเก็บ response ที่ได้
-    const newBid = await prisma.bidHistory.create({
-      data: {
-        bidder_name: name,
-        bid_amount: numericBidAmount,
-        id_artwork,
-      },
+    // ✅ 1. ใช้ transaction เพื่อป้องกัน race condition
+    const newBid = await prisma.$transaction(async (tx) => {
+      // ตรวจสอบ bid ล่าสุดใน transaction เดียวกัน
+      const latestBid = await tx.bidHistory.findFirst({
+        where: { id_artwork },
+        orderBy: { bid_at: 'desc' },
+      });
+
+      if (latestBid && numericBidAmount <= latestBid.bid_amount) {
+        throw new Error("BID_AMOUNT_TOO_LOW");
+      }
+
+      // สร้าง bid ใหม่
+      return await tx.bidHistory.create({
+        data: {
+          bidder_name: name,
+          bid_amount: numericBidAmount,
+          id_artwork,
+        },
+      });
     });
 
     const allBidders = await prisma.bidHistory.findMany({
@@ -142,6 +155,15 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Bid creation error:', error);
+    // จัดการ error เฉพาะสำหรับ bid amount ต่ำเกินไป
+    if (error.message === "BID_AMOUNT_TOO_LOW") {
+      return new Response(JSON.stringify({ 
+        error: "มีคนบิดสูงกว่าหรือเท่ากับจำนวนที่คุณบิด กรุณาลองใหม่อีกครั้ง" 
+      }), {
+        status: 409, // Conflict status
+        headers: { "Content-Type": "application/json" },
+      });
+    }
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { "Content-Type": "application/json" },

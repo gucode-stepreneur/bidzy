@@ -304,11 +304,13 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
     // ✅ เงื่อนไขเช็คก่อนส่ง
     if (bid_amount <= currentHighest) {
       alert("จำนวนบิดต้องมากกว่าราคาปัจจุบัน");
+      setIsBidding(false)
       return;
     }
 
     if ((bid_amount - currentHighest) < bidRate) {
       alert(`ต้องบิดเพิ่มอย่างน้อย ${bidRate} บาทจากราคาปัจจุบัน`);
+      setIsBidding(false)
       return;
     }
 
@@ -326,7 +328,15 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
       },
       body: JSON.stringify(data),
     })
-    .then((response) => response.json())
+    .then((response) => {
+      if (!response.ok) {
+        return response.json().then(errorData => {
+          alert('มีคนบิดก่อนคุณ')
+          return
+        });
+      }
+      return response.json();
+    })
     .then((data) => {
       console.log("✅ ได้ bid ใหม่จาก server:", data);
 
@@ -343,6 +353,7 @@ export  function Auc_board({idArt , whichRole , onDeadlineExpired}) {
     })
     .catch((error) => {
       console.error("❌ เกิดข้อผิดพลาดในการส่ง bid:", error);
+      alert(error.message); // แสดง error message ให้ผู้ใช้เห็น
     })
     .finally(() => {
       setIsBidding(false); // ปลดล็อกปุ่ม

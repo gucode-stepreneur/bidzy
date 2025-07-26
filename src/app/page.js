@@ -21,6 +21,8 @@ const page = () => {
   const [previewImage, setPreviewImage] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false); // เพิ่ม state สำหรับ loading 
 
+  const [reMindImg , setReMindImg] = useState(false)
+
 
    const [modalOpen , setModalOpen] = useState(false)
    const [link , setLink] = useState('')
@@ -43,6 +45,15 @@ const page = () => {
       setUsername("");
     }
     setIsLoaded(true);
+
+    window.addEventListener('scroll', ()=>{
+      const scrolled = window.scrollY;
+      if(scrolled >= 300){
+        setReMindImg(true)
+      }else if(scrolled < 300){
+        setReMindImg(false)
+      }
+    })
   }, []);
 
   useEffect(() => {
@@ -109,10 +120,10 @@ const page = () => {
 };
 
   
- 
+  
 
   return (
-    <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-8  bg-gray-50 min-h-screen ">
+    <div className="flex flex-col md:flex-row gap-10 lg:gap-30 px-10 lg:px-30 py-8  bg-gray-50 min-h-screen " id='header'>
       <Navbar />
       <div className="w-[100%] h-max mt-25 ">
   
@@ -273,8 +284,15 @@ const page = () => {
   
 
 
-
-
+  {/* show remind image */}
+  {reMindImg == true && previewImage != null ? (
+    <div className="w-[50px] h-[50px] fixed top-30 left-2 rounded-md md:hidden " onClick={() => {window.location = '#header'}}>
+      <Image  width={50} height={50} src={previewImage} className="rounded-md w-full h-full object-contain" alt="remind image"/> 
+    </div>
+  ):
+  (
+    <div className="hidden"></div>
+  )}
 </div>
 
   );

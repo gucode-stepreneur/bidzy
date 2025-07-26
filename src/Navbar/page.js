@@ -63,6 +63,7 @@ const Navbar = () => {
                 
                 <div className="flex items-center space-x-4">
                   {/* create auction button */}
+                <div className='flex flex-col md:block items-center gap-2 md:gap-0'>
                 <div
                   onClick={() => {
                     if (isArtist == false) {
@@ -81,25 +82,32 @@ const Navbar = () => {
                     </div>
                   </span>
                 </div>
-                {/* go to seller dashboard button */}
-                <div
-                  onClick={() => {
-                    if (isArtist == false) {
-                      setIsOpen(true);
-                    } else if(isArtist == true) {
-                      window.location.href = '/seller_dashboard';
-                    }
-                  }}
-                  className="flex flex-row items-center justify-center shadow-sm gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm"
-                  style={{ cursor: 'pointer' }}
-                >
-                  <span className='!text-[#4047A1] font-bold hidden md:block'>การประมูลทั้งหมด</span>
-                  <span>
-                    <div>
-                      <Image className='object-contain' src="/icon/dashboard_nav.png" width={20} height={20} alt='dash icon' />
-                    </div>
-                  </span>
+                <div className='text-[10px] block md:hidden'>สร้างประมูล</div>
                 </div>
+                
+                {/* go to seller dashboard button */}
+                <div className='flex flex-col md:block items-center gap-2 md:gap-0'>
+                  <div
+                    onClick={() => {
+                      if (isArtist == false) {
+                        setIsOpen(true);
+                      } else if(isArtist == true) {
+                        window.location.href = '/seller_dashboard';
+                      }
+                    }}
+                    className="flex flex-row items-center justify-center shadow-sm gap-3 border-2 border-[#4047A1] px-4 py-2 rounded-sm"
+                    style={{ cursor: 'pointer' }}
+                  >
+                    <span className='!text-[#4047A1] font-bold hidden md:block'>การประมูลทั้งหมด</span>
+                    <span>
+                      <div>
+                        <Image className='object-contain' src="/icon/dashboard_nav.png" width={20} height={20} alt='dash icon' />
+                      </div>
+                    </span>
+                  </div>
+                <div className='text-[10px] block md:hidden'>จัดการงาน</div>
+                </div>
+                
 
     {isArtist == false && (
       <div  id="modal"
@@ -131,10 +139,10 @@ const Navbar = () => {
     )}
                     
     {isLoggedIn ? (
-  <div className="relative">
+  <div className='flex flex-col md:block items-center gap-2 md:gap-0 relative'>
     <div
       onClick={() => setShowDropdown(prev => !prev)}
-      className="flex flex-row items-center justify-center shadow-sm gap-3 border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
+      className="flex flex-row items-center relative justify-center shadow-sm gap-3 border-2 border-[#4047A1] p-2 rounded-sm cursor-pointer"
     >
       <Image
         className="object-contain"
@@ -143,10 +151,12 @@ const Navbar = () => {
         height={20}
         alt="User icon"
       />
+    <div className='absolute bottom-0 right-0 transform translate-x-1/3 rounded-full translate-y-1/3 w-[15px] h-[15px] bg-green-500 '></div>
     </div>
+    <div className='text-[10px] block md:hidden'>ล็อคอิน</div>
 
     {showDropdown && (
-      <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-sm z-50">
+      <div className="absolute top-9 right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-sm z-50">
         <button
           onClick={() => {
             document.cookie = "token=; max-age=0; path=/";
